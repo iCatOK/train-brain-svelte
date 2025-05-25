@@ -69,7 +69,8 @@
     startTimer();
   }
 
-  function handleSubmit() {
+  function handleSubmit(event: Event) {
+    event.preventDefault();
     if (gameState !== 'drilling' || problems.length === 0) return;
 
     const currentProblem = problems[currentProblemIndex];
@@ -149,7 +150,7 @@
       <div class="problem-area">
         {currentProblemDisplay.problem} = ?
       </div>
-      <form on:submit|preventDefault={handleSubmit} class="answer-form">
+      <form on:submit={handleSubmit} class="answer-form">
         <input
           type="number"
           bind:value={userAnswer}
@@ -172,11 +173,11 @@
             {#if awardedMedal === 'none'}No Medal{/if}
           </span>
         </p>
-        <div class="results-actions">
-            <button on:click={startDrill}>Try Again</button>
-            <button on:click={() => goto('/')}>Go Home</button>
+            <div class="results-actions">
+              <button on:click={() => { resetToIdle(); startDrill(); }}>Try Again</button>
+              <button on:click={() => goto('/')}>Go Home</button>
+            </div>
         </div>
-      </div>
     {/if}
   </div>
 </div>
