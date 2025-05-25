@@ -12,7 +12,7 @@
 
   let startTime: number | null = null;
   let elapsedTimeInSeconds = 0;
-  let timerInterval: NodeJS.Timeout | undefined = undefined;
+  let timerInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let formattedTime = '00:00';
 
   let gameState: 'idle' | 'drilling' | 'finished' = 'idle';

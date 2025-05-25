@@ -1,6 +1,6 @@
 <script lang="ts">
   import '../app.css'; // Your global styles
-  import { page } from '$app/stores'; // To get current path for active link styling
+  import { page } from '$app/state'; // Modern way to access page state
 
   // Simple icons (replace with SVGs or an icon library for better visuals)
   const IconBrain = '🧠';
@@ -11,6 +11,15 @@
 
   // Placeholder for user data
   let userName = 'kamil';
+
+  // Helper function to check if link is active
+  function isActive(path: string): boolean {
+    return page.url.pathname === path;
+  }
+
+  // Debug state
+  let authDebug = false;
+  let debug = false;
 </script>
 
 <div class="app-container">
@@ -20,14 +29,29 @@
       <span class="logo-text">Train Brain Game</span>
     </a>
     <nav class="main-nav">
-      <a href="/statistics" class:active={$page.url.pathname === '/statistics'}>
-        {IconChart} Statistics
+      <a 
+        href="/statistics" 
+        class="nav-link"
+        class:active={isActive('/statistics')}
+      >
+        <span class="nav-icon">{IconChart}</span>
+        <span>Statistics</span>
       </a>
-      <a href="/settings" class:active={$page.url.pathname === '/settings'}>
-        {IconSettings} Settings
+      <a 
+        href="/settings" 
+        class="nav-link"
+        class:active={isActive('/settings')}
+      >
+        <span class="nav-icon">{IconSettings}</span>
+        <span>Settings</span>
       </a>
-      <a href="/db-status" class:active={$page.url.pathname === '/db-status'}>
-        {IconDatabase} DB Status
+      <a 
+        href="/db-status" 
+        class="nav-link"
+        class:active={isActive('/db-status')}
+      >
+        <span class="nav-icon">{IconDatabase}</span>
+        <span>DB Status</span>
       </a>
     </nav>
     <div class="user-profile">
@@ -40,13 +64,19 @@
     <slot />
   </main>
 
-  <!-- Optional: Debug toggles as seen in the image -->
+  <!-- Optional: Debug toggles -->
   <footer class="app-footer-debug">
-    <div>
-      <label><input type="checkbox" /> Auth Debug</label>
+    <div class="debug-control">
+      <label>
+        <input type="checkbox" bind:checked={authDebug} />
+        <span>Auth Debug</span>
+      </label>
     </div>
-    <div>
-      <label><input type="checkbox" /> Debug</label>
+    <div class="debug-control">
+      <label>
+        <input type="checkbox" bind:checked={debug} />
+        <span>Debug</span>
+      </label>
     </div>
   </footer>
 </div>
@@ -56,11 +86,9 @@
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #edf6ff; /* Lighter blue for the overall page background */
+    background-color: #edf6ff;
     color: #333;
-    display: flex; /* For sticky footer potential */
-    flex-direction: column; /* For sticky footer potential */
-    min-height: 100vh; /* For sticky footer potential */
+    min-height: 100vh;
   }
 
   .app-container {
@@ -74,26 +102,31 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 24px;
-    background-color: #ffffff; /* White header */
+    background-color: #ffffff;
     border-bottom: 1px solid #e2e8f0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    position: sticky; /* Make header sticky */
+    position: sticky;
     top: 0;
-    z-index: 1000; /* Ensure it's above other content */
+    z-index: 1000;
   }
 
   .logo-link {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: #0ea5e9; /* Primary blue */
+    color: #0ea5e9;
     font-weight: bold;
     font-size: 1.25rem;
+    transition: color 0.2s ease;
+  }
+
+  .logo-link:hover {
+    color: #0284c7;
   }
 
   .logo-icon {
     margin-right: 8px;
-    font-size: 1.5rem; /* Adjust if using real SVGs */
+    font-size: 1.5rem;
   }
 
   .main-nav {
@@ -101,44 +134,51 @@
     gap: 24px;
   }
 
-  .main-nav a {
-    text-decoration: none;
-    color: #4a5568; /* Tailwind gray-600 */
-    font-weight: 500;
-    padding: 8px 0;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
+  .nav-link {
     display: flex;
     align-items: center;
     gap: 6px;
+    text-decoration: none;
+    color: #4a5568;
+    font-weight: 500;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
   }
 
-  .main-nav a:hover,
-  .main-nav a.active {
-    color: #0ea5e9; /* Primary blue */
+  .nav-link:hover {
+    color: #0ea5e9;
+  }
+
+  .nav-link.active {
+    color: #0ea5e9;
     border-bottom-color: #0ea5e9;
+  }
+
+  .nav-icon {
+    font-size: 1rem;
   }
 
   .user-profile {
     display: flex;
     align-items: center;
     color: #4a5568;
+    font-weight: 500;
   }
 
   .user-icon {
     margin-right: 8px;
-    /* Style for icon */
+    font-size: 1.1rem;
   }
 
   .app-content {
-    flex-grow: 1; /* Allows content to take available space */
-    padding: 0px; /* Remove padding here, let pages manage their own */
-    /* background-color: #e0f2fe; /* Light blue background now handled by body */
+    flex-grow: 1;
+    background-color: inherit;
   }
 
   .app-footer-debug {
-    background-color: #1e293b; /* Dark background for debug footer */
-    color: #94a3b8; /* Lighter text for debug footer */
+    background-color: #1e293b;
+    color: #94a3b8;
     padding: 10px 24px;
     display: flex;
     justify-content: flex-end;
@@ -146,9 +186,38 @@
     font-size: 0.8rem;
   }
 
-  .app-footer-debug label {
+  .debug-control label {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .debug-control label:hover {
+    color: #cbd5e1;
+  }
+
+  .debug-control input[type="checkbox"] {
+    margin: 0;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .app-header {
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .main-nav {
+      gap: 16px;
+    }
+
+    .app-footer-debug {
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+    }
   }
 </style>
