@@ -3,8 +3,9 @@
   import { ProblemGenerator, type Problem } from '$lib/ProblemGenerator'; // Ensure path is correct
   import type { Medal } from '$lib/types'; // Ensure path is correct
   import { goto } from '$app/navigation';
+  import { settings } from '$lib/stores/settings';
 
-  const TOTAL_PROBLEMS = 10;
+  $: TOTAL_PROBLEMS = $settings.dailyProblemsCount;
   let problems: Problem[] = [];
   let currentProblemIndex = 0;
   let userAnswer: string = ''; // Use string for input binding
