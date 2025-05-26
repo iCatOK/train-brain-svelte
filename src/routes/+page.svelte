@@ -2,11 +2,8 @@
   import HeroSection from '$lib/components/HeroSection.svelte';
   import NotificationCard from '$lib/components/NotificationCard.svelte';
   import ActionCard from '$lib/components/ActionCard.svelte';
-  // No longer need `goto` here if ActionCard handles its own navigation
-  // No longer need individual Icon constants here if passed as props or handled by an Icon component
-
-  // Placeholder: In a real app, this would come from a store or API
-  let dailyDrillPending = true;
+  import { dailyDrillPending } from '$lib/stores/dailyDrill';
+  import { onMount } from 'svelte';
 
   // Data for the action cards
   const actionCardsData = [
@@ -48,11 +45,14 @@
     },
   ];
 
+  onMount(() => {
+    // Check daily drill status when component mounts
+    dailyDrillPending.checkStatus();
+  });
+
   // If you needed to refresh the pending status from this page
   function handleRefreshNotification() {
-    // Logic to re-check or refresh the dailyDrillPending status
-    console.log('Refreshing pending status...');
-    // dailyDrillPending = ... (fetch new status)
+    dailyDrillPending.checkStatus();
   }
 </script>
 
@@ -61,28 +61,42 @@
     title="Train Brain Game"
     subtitle="Sharpen your math skills with daily problems in Train Brain Game"
   />
-
-  {#if dailyDrillPending}
-    <NotificationCard
-      icon="⚠️"
-      title="Daily Drill Pending"
-      message="You haven't completed your math drill for today yet."
-      refreshIcon="🔄"
-      on:refresh={handleRefreshNotification}
-    />
-  {/if}
+  <NotificationCard
+    icon={$dailyDrillPending ? "⚠️" : "✅"}
+    title={$dailyDrillPending ? "Daily Drill Pending" : "Daily Drill Completed"}
+    message={$dailyDrillPending 
+      ? "You haven't completed your math drill for today yet."
+      : "Great job! You've completed your daily drill. Come back tomorrow for a new challenge!"}
+    refreshIcon="🔄"
+    variant={$dailyDrillPending ? "warning" : "success"}
+    on:refresh={handleRefreshNotification}
+  />
 
   <section class="action-cards-grid">
     {#each actionCardsData as card}
-      <ActionCard
-        icon={card.icon}
-        iconClass={card.iconClass}
-        title={card.title}
-        subtitle={card.subtitle}
-        description={card.description}
-        buttonText={card.buttonText}
-        targetRoute={card.targetRoute}
-      />
+      {#if card.title === 'Math Drill'}
+        <ActionCard
+          {...card}
+          buttonText={$dailyDrillPending ? card.buttonText : "Already Completed"}
+          disabled={!$dailyDrillPending}
+          icon={card.icon}
+          iconClass={card.iconClass}
+          title={card.title}
+          subtitle={card.subtitle}
+          description={card.description}
+          targetRoute={card.targetRoute}
+        />
+      {:else}
+        <ActionCard
+          {...card}
+          icon={card.icon}
+          iconClass={card.iconClass}
+          title={card.title}
+          subtitle={card.subtitle}
+          description={card.description}
+          targetRoute={card.targetRoute}
+        />
+      {/if}
     {/each}
   </section>
 </div>

@@ -5,6 +5,7 @@
   import { goto } from '$app/navigation';
   import { settings } from '$lib/stores/settings';
   import { drillResults } from '$lib/stores/drillResults';
+  import { dailyDrillPending } from '$lib/stores/dailyDrill';
   import type { DrillResult } from '$lib/types/DrillResult';
 
   $: TOTAL_PROBLEMS = $settings.dailyProblemsCount;
@@ -113,6 +114,7 @@
       medal: awardedMedal
     };
     drillResults.addResult(result);
+    dailyDrillPending.markCompleted();
   }
 
   function goBack() {

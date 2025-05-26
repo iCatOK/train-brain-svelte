@@ -5,12 +5,12 @@
   export let iconClass: string = '';
   export let title: string;
   export let subtitle: string;
-  export let description: string;
-  export let buttonText: string;
+  export let description: string;  export let buttonText: string;
   export let targetRoute: string;
+  export let disabled = false;
 
   function handleAction() {
-    if (targetRoute) {
+    if (targetRoute && !disabled) {
       goto(targetRoute);
     }
   }
@@ -21,7 +21,7 @@
   <h2>{title}</h2>
   <p class="subtitle">{subtitle}</p>
   <p class="description">{description}</p>
-  <button on:click={handleAction}>{buttonText}</button>
+  <button on:click={handleAction} {disabled} class:disabled>{buttonText}</button>
 </div>
 
 <style>
@@ -81,8 +81,13 @@
     transition: background-color 0.2s;
     margin-top: auto;
   }
-
-  .action-card button:hover {
+  .action-card button:hover:not(.disabled) {
     background-color: #0284c7;
+  }
+
+  .action-card button.disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.7;
   }
 </style>
