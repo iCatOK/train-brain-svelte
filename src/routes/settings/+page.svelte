@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
   import { settings } from '$lib/stores/settings';
   
   let tempCount = $settings.dailyProblemsCount;
@@ -20,6 +21,7 @@
   function handleSave() {
     if (validateCount(tempCount)) {
       settings.update(s => ({...s, dailyProblemsCount: tempCount}));
+      goto('/')
     }
   }
 

@@ -1,6 +1,11 @@
 <script lang="ts">
   import { drillResults } from '$lib/stores/drillResults';
+  import { onMount } from 'svelte';
+  import Chart from 'chart.js/auto';
   
+  let chartCanvas: HTMLCanvasElement;
+  let chart: Chart;
+
   // Update stats whenever drill results change
   $: stats = {
     totalDrills: $drillResults.length,
@@ -23,11 +28,160 @@
       }))
   };
 
+  $: if (chart) {
+    updateChart($drillResults);
+  }
+
+  function formatDate(date: Date): string {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric'
+    });
+  }
+
+  function updateChart(results: typeof $drillResults) {
+    // Group results by date
+    const dailyData = results.reduce((acc, result) => {
+      const date = formatDate(result.date);
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(result.timeInSeconds);
+      return acc;
+    }, {} as Record<string, number[]>);
+
+    const labels = Object.keys(dailyData).sort((a, b) => {
+      // Sort dates in ascending order
+      return new Date(a).getTime() - new Date(b).getTime();
+    });
+
+    const datasets = [{
+      label: 'Time per Attempt',
+      data: labels.map(date => {
+        const times = dailyData[date];
+        return times.map(time => ({
+          x: date,
+          y: time
+        }));
+      }).flat(),
+      backgroundColor: ({ raw }: { raw: { y: number } }) => {
+        // Color points based on medal times
+        if (raw.y < 30) return '#FFD700'; // gold
+        if (raw.y < 60) return '#C0C0C0'; // silver
+        if (raw.y < 90) return '#CD7F32'; // bronze
+        return '#0ea5e9'; // default blue
+      },
+      borderColor: 'transparent',
+      pointRadius: 6,
+      pointHoverRadius: 8,
+    }];
+
+    chart.data.labels = labels;
+    chart.data.datasets = datasets;
+    chart.update();
+  }
+
   function formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
   }
+
+  onMount(() => {
+    if (!chartCanvas) return;
+
+    chart = new Chart(chartCanvas, {
+      type: 'scatter',
+      data: {
+        datasets: []
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 20  // Add more bottom padding for x-axis labels
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Time (seconds)',
+              font: {
+                size: 14,
+                weight: 'bold'
+              }
+            },
+            grid: {
+              color: '#e2e8f0'
+            },
+            ticks: {
+              callback: (value) => formatTime(value as number)
+            }
+          },
+          x: {
+            type: 'category',
+            title: {
+              display: true,
+              text: 'Date',
+              font: {
+                size: 14,
+                weight: 'bold'
+              },
+              padding: { bottom: 10 }  // Add padding below axis title
+            },
+            grid: {
+              display: false
+            },
+            ticks: {
+              padding: 8  // Add padding for axis labels
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            titleColor: '#333',
+            titleFont: {
+              weight: 'bold'
+            },
+            bodyColor: '#666',
+            borderColor: '#e2e8f0',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 6,
+            callbacks: {
+              title: (items) => {
+                return items[0].label;
+              },
+              label: (context) => {
+                const seconds = context.parsed.y;
+                let medal = '';
+                if (seconds < 30) medal = ' 🥇';
+                else if (seconds < 60) medal = ' 🥈';
+                else if (seconds < 90) medal = ' 🥉';
+                return `Time: ${formatTime(seconds)}${medal}`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    updateChart($drillResults);
+
+    return () => {
+      chart.destroy();
+    };
+  });
 </script>
 
 <div class="page-container">
@@ -73,6 +227,11 @@
           {/each}
         {/if}
       </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>Daily Performance</h3>
+      <canvas bind:this={chartCanvas}></canvas>
     </div>
   </div>
 </div>
@@ -156,4 +315,21 @@
   .date { color: #666; }
   .time { color: #0ea5e9; font-weight: bold; }
   .medal { font-size: 1.2em; }
+  .chart-container {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #eee;
+    height: 400px;
+    margin-bottom: 16px;  /* Add bottom margin to container */
+  }
+
+  .chart-container h3 {
+    margin-bottom: 16px;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: calc(100% - 20px) !important;  /* Subtract some height to ensure labels fit */
+    margin-bottom: 20px;  /* Add bottom margin to canvas */
+  }
 </style>
