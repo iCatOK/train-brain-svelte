@@ -4,6 +4,8 @@
   import type { Medal } from '$lib/types'; // Ensure path is correct
   import { goto } from '$app/navigation';
   import { settings } from '$lib/stores/settings';
+  import { drillResults } from '$lib/stores/drillResults';
+  import type { DrillResult } from '$lib/types/DrillResult';
 
   $: TOTAL_PROBLEMS = $settings.dailyProblemsCount;
   let problems: Problem[] = [];
@@ -100,6 +102,17 @@
     stopTimer();
     awardedMedal = calculateMedal(elapsedTimeInSeconds);
     gameState = 'finished';
+    
+    // Save drill result
+    const result: DrillResult = {
+      id: crypto.randomUUID(),
+      date: new Date(),
+      timeInSeconds: elapsedTimeInSeconds,
+      problemCount: problems.length,
+      correctCount: score,
+      medal: awardedMedal
+    };
+    drillResults.addResult(result);
   }
 
   function goBack() {
@@ -279,6 +292,7 @@
     margin: 0;
   }
   .answer-form input[type="number"] {
+    appearance: textfield;
     -moz-appearance: textfield; /* Firefox */
   }
 

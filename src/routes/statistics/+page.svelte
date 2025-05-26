@@ -1,19 +1,33 @@
 <script lang="ts">
-  // Mock data - in a real app, this would come from a store or API
-  const mockStats = {
-    totalDrills: 25,
-    averageTime: '01:45',
+  import { drillResults } from '$lib/stores/drillResults';
+  
+  // Update stats whenever drill results change
+  $: stats = {
+    totalDrills: $drillResults.length,
+    averageTime: formatTime(
+      $drillResults.length > 0 
+        ? $drillResults.reduce((sum, dr) => sum + dr.timeInSeconds, 0) / $drillResults.length 
+        : 0
+    ),
     medals: {
-      gold: 8,
-      silver: 12,
-      bronze: 3
+      gold: $drillResults.filter(dr => dr.medal === 'gold').length,
+      silver: $drillResults.filter(dr => dr.medal === 'silver').length,
+      bronze: $drillResults.filter(dr => dr.medal === 'bronze').length
     },
-    recentTimes: [
-      { date: '2024-05-24', time: '01:23', medal: 'gold' },
-      { date: '2024-05-23', time: '01:45', medal: 'silver' },
-      { date: '2024-05-22', time: '02:15', medal: 'bronze' },
-    ]
+    recentActivities: $drillResults
+      .slice(0, 10)
+      .map(dr => ({
+        date: dr.date.toLocaleDateString(),
+        time: formatTime(dr.timeInSeconds),
+        medal: dr.medal
+      }))
   };
+
+  function formatTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+  }
 </script>
 
 <div class="page-container">
@@ -23,38 +37,41 @@
     <div class="stats-grid">
       <div class="stat-box">
         <h3>Total Drills</h3>
-        <p class="stat-value">{mockStats.totalDrills}</p>
+        <p class="stat-value">{stats.totalDrills}</p>
       </div>
       
       <div class="stat-box">
         <h3>Average Time</h3>
-        <p class="stat-value">{mockStats.averageTime}</p>
+        <p class="stat-value">{stats.averageTime}</p>
       </div>
       
       <div class="stat-box medals">
         <h3>Medals Earned</h3>
         <div class="medals-grid">
-          <div>🥇 {mockStats.medals.gold}</div>
-          <div>🥈 {mockStats.medals.silver}</div>
-          <div>🥉 {mockStats.medals.bronze}</div>
+          <div>🥇 {stats.medals.gold}</div>
+          <div>🥈 {stats.medals.silver}</div>
+          <div>🥉 {stats.medals.bronze}</div>
         </div>
       </div>
     </div>
 
     <div class="recent-activities">
-      <h3>Recent Activities</h3>
-      <div class="activities-list">
-        {#each mockStats.recentTimes as activity}
-          <div class="activity-item">
-            <span class="date">{activity.date}</span>
-            <span class="time">{activity.time}</span>
-            <span class="medal">
-              {#if activity.medal === 'gold'}🥇{/if}
-              {#if activity.medal === 'silver'}🥈{/if}
-              {#if activity.medal === 'bronze'}🥉{/if}
-            </span>
-          </div>
-        {/each}
+      <h3>Recent Activities</h3>      <div class="activities-list">
+        {#if stats.recentActivities.length === 0}
+          <div class="empty-state">No drill results yet. Complete your first drill to see your statistics!</div>
+        {:else}
+          {#each stats.recentActivities as activity}
+            <div class="activity-item">
+              <span class="date">{activity.date}</span>
+              <span class="time">{activity.time}</span>
+              <span class="medal">
+                {#if activity.medal === 'gold'}🥇{/if}
+                {#if activity.medal === 'silver'}🥈{/if}
+                {#if activity.medal === 'bronze'}🥉{/if}
+              </span>
+            </div>
+          {/each}
+        {/if}
       </div>
     </div>
   </div>
