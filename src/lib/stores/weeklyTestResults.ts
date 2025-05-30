@@ -14,9 +14,15 @@ export interface WordMemoryTestResult {
   // wordsRecalled: string[];
 }
 
+export interface StroopTestResult {
+  date: string;
+  time: number; // in seconds
+}
+
 export interface WeeklyTestData {
   countingTest: CountingTestResult[];
   wordMemoryTest: WordMemoryTestResult[];
+  stroopTest: StroopTestResult[];
   // Future tests can be added here
 }
 
@@ -26,6 +32,7 @@ function createWeeklyTestStore() {
   const initialData: WeeklyTestData = {
     countingTest: [],
     wordMemoryTest: [],
+    stroopTest: [],
   };
   let storedData: WeeklyTestData;
   if (typeof localStorage !== 'undefined') {
@@ -36,6 +43,7 @@ function createWeeklyTestStore() {
       storedData = {
         countingTest: Array.isArray(parsedData.countingTest) ? parsedData.countingTest : [],
         wordMemoryTest: Array.isArray(parsedData.wordMemoryTest) ? parsedData.wordMemoryTest : [],
+        stroopTest: Array.isArray(parsedData.stroopTest) ? parsedData.stroopTest : [],
       };
     } catch {
       storedData = initialData;
@@ -95,12 +103,35 @@ function createWeeklyTestStore() {
     return currentData.wordMemoryTest;
   }
 
+  // Stroop Test Functions
+  function addStroopTestResult(timeInSeconds: number): void {
+    const newResult: StroopTestResult = {
+      date: new Date().toISOString(),
+      time: timeInSeconds,
+    };
+    store.update((currentData) => {
+      return {
+        ...currentData,
+        stroopTest: [...currentData.stroopTest, newResult],
+      };
+    });
+  }
+
+  function getStroopTestResults(): StroopTestResult[] {
+    let currentData!: WeeklyTestData;
+    const unsubscribe = store.subscribe(value => currentData = value);
+    unsubscribe();
+    return currentData.stroopTest;
+  }
+
   return {
     subscribe: store.subscribe,
     addCountingTestResult,
     getCountingTestResults,
     addWordMemoryTestResult,
     getWordMemoryTestResults,
+    addStroopTestResult,
+    getStroopTestResults,
   };
 }
 

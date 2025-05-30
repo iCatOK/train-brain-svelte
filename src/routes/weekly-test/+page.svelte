@@ -1,6 +1,7 @@
 <script lang="ts">
   import CountingTest from '$lib/components/weekly-tests/CountingTest.svelte';
   import WordMemoryTest from '$lib/components/weekly-tests/WordMemoryTest.svelte';
+  import StroopTest from '$lib/components/weekly-tests/StroopTest.svelte';
   import { createEventDispatcher } from 'svelte';
 
   type TestName = 'counting' | 'wordMemory' | 'stroop' | 'finished'; // Added 'stroop' as placeholder for test 3
@@ -52,13 +53,7 @@
     {:else if currentTest === 'wordMemory'}
       <WordMemoryTest on:testCompleted={handleTestCompletion} />
     {:else if currentTest === 'stroop'}
-      <div class="placeholder-test">
-        <h3>Stroop Test (Test 3)</h3>
-        <p>This test is not yet implemented.</p>
-        <button class="test-button next" onclick={() => handleTestCompletion({detail: 'stroop'} as CustomEvent<TestName>)}>
-          Simulate Completion
-        </button>
-      </div>
+      <StroopTest on:testCompleted={handleTestCompletion} />
     {:else if currentTest === 'finished'}
       <div class="test-finished-message">
         <h2>All tests completed!</h2>
