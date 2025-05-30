@@ -94,7 +94,7 @@
       currentProblemIndex++;
     }
 
-    if (currentProblemIndex >= problems.length - 1) {
+    if (currentProblemIndex > problems.length - 1) {
       finishDrill();
     }
   }
