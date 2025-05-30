@@ -43,6 +43,15 @@
       buttonText: 'View Profile',
       targetRoute: '/profile', // Example route
     },
+    {
+      icon: '📝',
+      iconClass: 'weekly-test-icon',
+      title: 'Weekly Tests',
+      subtitle: 'Challenge yourself with weekly assessments',
+      description: 'Take weekly tests to track your long-term progress and identify areas for improvement.',
+      buttonText: 'Start Weekly Test',
+      targetRoute: '/weekly-test',
+    },
   ];
 
   onMount(() => {
