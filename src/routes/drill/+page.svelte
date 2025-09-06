@@ -6,6 +6,7 @@
   import { settings } from '$lib/stores/settings';
   import { drillResults } from '$lib/stores/drillResults';
   import { dailyDrillPending } from '$lib/stores/dailyDrill';
+  import { dayCounter } from '$lib/stores/dayCounter';
   import type { DrillResult } from '$lib/types/DrillResult';
 
   $: TOTAL_PROBLEMS = $settings.dailyProblemsCount;
@@ -115,6 +116,9 @@
     };
     drillResults.addResult(result);
     dailyDrillPending.markCompleted();
+    
+    // Record the first day if this is the user's first drill
+    dayCounter.recordFirstDay();
   }
 
   function goBack() {
@@ -141,7 +145,8 @@
 
 
   onMount(() => {
-    
+    // Initialize the day counter
+    dayCounter.initialize();
   });
 
   onDestroy(() => {

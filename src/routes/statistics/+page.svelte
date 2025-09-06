@@ -10,8 +10,12 @@
   $: stats = {
     totalDrills: $drillResults.length,
     averageTime: formatTime(
-      $drillResults.length > 0 
-        ? $drillResults.reduce((sum, dr) => sum + dr.timeInSeconds, 0) / $drillResults.length 
+      $drillResults.length > 0
+        ? $drillResults.reduce((sum, dr) => {
+            // Ensure timeInSeconds is a valid number
+            const time = typeof dr.timeInSeconds === 'number' && !isNaN(dr.timeInSeconds) ? dr.timeInSeconds : 0;
+            return sum + time;
+          }, 0) / $drillResults.length
         : 0
     ),
     medals: {
@@ -23,7 +27,7 @@
       .slice(0, 10)
       .map(dr => ({
         date: dr.date.toLocaleDateString(),
-        time: formatTime(dr.timeInSeconds),
+        time: formatTime(typeof dr.timeInSeconds === 'number' && !isNaN(dr.timeInSeconds) ? dr.timeInSeconds : 0),
         medal: dr.medal
       }))
   };

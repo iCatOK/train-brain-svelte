@@ -3,6 +3,8 @@
   import NotificationCard from '$lib/components/NotificationCard.svelte';
   import ActionCard from '$lib/components/ActionCard.svelte';
   import { dailyDrillPending } from '$lib/stores/dailyDrill';
+  import { formattedDayCounter, dayCounter } from '$lib/stores/dayCounter';
+  import { weeklyTestAvailable } from '$lib/stores/weeklyTestAvailability';
   import { onMount } from 'svelte';
 
   // Data for the action cards
@@ -57,6 +59,8 @@
   onMount(() => {
     // Check daily drill status when component mounts
     dailyDrillPending.checkStatus();
+    // Initialize the day counter
+    dayCounter.initialize();
   });
 
   // If you needed to refresh the pending status from this page
@@ -70,24 +74,47 @@
     title="Train Brain Game"
     subtitle="Sharpen your math skills with daily problems in Train Brain Game"
   />
-  <NotificationCard
-    icon={$dailyDrillPending ? "⚠️" : "✅"}
-    title={$dailyDrillPending ? "Daily Drill Pending" : "Daily Drill Completed"}
-    message={$dailyDrillPending 
-      ? "You haven't completed your math drill for today yet."
-      : "Great job! You've completed your daily drill. Come back tomorrow for a new challenge!"}
-    refreshIcon="🔄"
-    variant={$dailyDrillPending ? "warning" : "success"}
-    on:refresh={handleRefreshNotification}
-  />
+  <div class="day-counter">{$formattedDayCounter}</div>
+  {#if $weeklyTestAvailable}
+    <NotificationCard
+      icon="📝"
+      title="Weekly Test Available!"
+      message="You've completed 7 drills! Take your weekly test to track your progress."
+      refreshIcon=""
+      variant="success"
+    />
+  {:else}
+    <NotificationCard
+      icon={$dailyDrillPending ? "⚠️" : "✅"}
+      title={$dailyDrillPending ? "Daily Drill Pending" : "Daily Drill Completed"}
+      message={$dailyDrillPending
+        ? "You haven't completed your math drill for today yet."
+        : "Great job! You've completed your daily drill. Come back tomorrow for a new challenge!"}
+      refreshIcon="🔄"
+      variant={$dailyDrillPending ? "warning" : "success"}
+      on:refresh={handleRefreshNotification}
+    />
+  {/if}
 
   <section class="action-cards-grid">
     {#each actionCardsData as card}
       {#if card.title === 'Math Drill'}
         <ActionCard
           {...card}
-          buttonText={$dailyDrillPending ? card.buttonText : "Already Completed"}
+          buttonText={$dailyDrillPending ? card.buttonText : "Completed today"}
           disabled={!$dailyDrillPending}
+          icon={card.icon}
+          iconClass={card.iconClass}
+          title={card.title}
+          subtitle={card.subtitle}
+          description={card.description}
+          targetRoute={card.targetRoute}
+        />
+      {:else if card.title === 'Weekly Tests'}
+        <ActionCard
+          {...card}
+          buttonText={$weeklyTestAvailable ? card.buttonText : "Complete 7 drills"}
+          disabled={!$weeklyTestAvailable}
           icon={card.icon}
           iconClass={card.iconClass}
           title={card.title}
@@ -119,6 +146,7 @@
     display: flex;
     flex-direction: column;
     gap: 32px;
+    position: relative;
   }
 
   /* Styles for HeroSection, NotificationCard, and ActionCard have been moved to their respective components */
@@ -127,5 +155,18 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 24px;
+  }
+
+  .day-counter {
+    text-align: center;
+    margin: -16px auto 16px;
+    background-color: #0ea5e9;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: fit-content;
   }
 </style>
