@@ -48,6 +48,12 @@
     showResetConfirm = false;
   }
 
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      cancelReset();
+    }
+  }
+
   $: validateCount(tempCount);
 </script>
 
@@ -86,8 +92,8 @@
     </div>
 
     {#if showResetConfirm}
-      <div class="confirm-dialog-overlay" on:click={cancelReset}>
-        <div class="confirm-dialog" on:click|stopPropagation>
+      <div class="confirm-dialog-overlay" on:click={cancelReset} role="button" tabindex="0" on:keydown={handleKeydown}>
+        <div class="confirm-dialog" on:click|stopPropagation on:keydown|stopPropagation={handleKeydown} role="button" tabindex="0">
           <h3>Confirm Reset</h3>
           <p>Are you sure you want to reset all your progress? This will permanently delete all drill results, weekly test data, and reset your day counter to Day 1.</p>
           <div class="confirm-buttons">

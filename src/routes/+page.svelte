@@ -5,6 +5,7 @@
   import { dailyDrillPending } from '$lib/stores/dailyDrill';
   import { formattedDayCounter, dayCounter } from '$lib/stores/dayCounter';
   import { weeklyTestAvailable } from '$lib/stores/weeklyTestAvailability';
+  import { drillResults } from '$lib/stores/drillResults';
   import { onMount } from 'svelte';
 
   // Data for the action cards
@@ -63,6 +64,12 @@
     dayCounter.initialize();
   });
 
+  // Calculate remaining drills for weekly test
+  $: remainingDrills = $drillResults.length > 0 ? 7 - ($drillResults.length % 7) : 7;
+  $: weeklyButtonText = remainingDrills === 1 ? "Complete 1 drill" : `Complete ${remainingDrills} drills`;
+  $: completedDrillsForNotification = $drillResults.length;
+  $: notificationMessage = `You've completed ${completedDrillsForNotification} drills! Take your weekly test to track your progress.`;
+
   // If you needed to refresh the pending status from this page
   function handleRefreshNotification() {
     dailyDrillPending.checkStatus();
@@ -79,7 +86,7 @@
     <NotificationCard
       icon="📝"
       title="Weekly Test Available!"
-      message="You've completed 7 drills! Take your weekly test to track your progress."
+      message={notificationMessage}
       refreshIcon=""
       variant="success"
     />
@@ -113,7 +120,7 @@
       {:else if card.title === 'Weekly Tests'}
         <ActionCard
           {...card}
-          buttonText={$weeklyTestAvailable ? card.buttonText : "Complete 7 drills"}
+          buttonText={$weeklyTestAvailable ? card.buttonText : weeklyButtonText}
           disabled={!$weeklyTestAvailable}
           icon={card.icon}
           iconClass={card.iconClass}
