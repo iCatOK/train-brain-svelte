@@ -124,6 +124,14 @@ function createWeeklyTestStore() {
     return currentData.stroopTest;
   }
 
+  function clearAllResults(): void {
+    store.set({
+      countingTest: [],
+      wordMemoryTest: [],
+      stroopTest: [],
+    });
+  }
+
   return {
     subscribe: store.subscribe,
     addCountingTestResult,
@@ -132,6 +140,7 @@ function createWeeklyTestStore() {
     getWordMemoryTestResults,
     addStroopTestResult,
     getStroopTestResults,
+    clearAllResults,
   };
 }
 
