@@ -3,7 +3,6 @@
   import { onMount } from 'svelte';
   import Chart from 'chart.js/auto';
   import { weeklyTestStore, type WeeklyTestData, type CountingTestResult, type WordMemoryTestResult, type StroopTestResult } from '$lib/stores/weeklyTestResults';
-  import { goto } from '$app/navigation';
   import type { DrillResult } from '$lib/types/DrillResult';
 
   // Constants
@@ -60,6 +59,7 @@
   }
 
   // Utility functions
+
   /**
    * Formats a date to a short string (e.g., "Dec 25")
    */
@@ -126,18 +126,6 @@
       case 'silver': return CHART_COLORS.SILVER;
       case 'bronze': return CHART_COLORS.BRONZE;
       default: return CHART_COLORS.DEFAULT;
-    }
-  }
-
-  /**
-   * Gets medal label for legend based on color
-   */
-  function getMedalLabel(color: string): string {
-    switch (color) {
-      case CHART_COLORS.GOLD: return 'Gold (≤30s)';
-      case CHART_COLORS.SILVER: return 'Silver (≤60s)';
-      case CHART_COLORS.BRONZE: return 'Bronze (≤90s)';
-      default: return 'Other (>90s)';
     }
   }
 
