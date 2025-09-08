@@ -4,13 +4,9 @@
 
   // Simple icons (replace with SVGs or an icon library for better visuals)
   const IconBrain = '🧠';
-  const IconUser = '👤';
   const IconDatabase = '💾';
   const IconSettings = '⚙️';
   const IconChart = '📊';
-
-  // Placeholder for user data
-  let userName = 'kamil';
 
   // Helper function to check if link is active
   function isActive(path: string): boolean {
@@ -45,19 +41,7 @@
         <span class="nav-icon">{IconSettings}</span>
         <span>Settings</span>
       </a>
-      <a 
-        href="/db-status" 
-        class="nav-link"
-        class:active={isActive('/db-status')}
-      >
-        <span class="nav-icon">{IconDatabase}</span>
-        <span>DB Status</span>
-      </a>
     </nav>
-    <div class="user-profile">
-      <span class="user-icon">{IconUser}</span>
-      <span class="user-name">{userName}</span>
-    </div>
   </header>
 
   <main class="app-content">
