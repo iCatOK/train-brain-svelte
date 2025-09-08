@@ -231,6 +231,7 @@
    * Creates chart dataset from daily data
    */
   function createChartDataset(dailyData: Record<string, number[]>, labels: string[]) {
+    // Collect all data points with their colors
     const allData = labels.map(date => {
       const times = dailyData[date];
       return times.map(time => ({
@@ -240,28 +241,24 @@
       }));
     }).flat();
 
-    // Group data by color for separate datasets
-    const colorGroups: Record<string, Array<{x: string, y: number}>> = {};
-    allData.forEach(point => {
-      if (!colorGroups[point.color]) {
-        colorGroups[point.color] = [];
-      }
-      colorGroups[point.color].push({ x: point.x, y: point.y });
-    });
+    // Sort all data by date to ensure chronological order
+    allData.sort((a, b) => new Date(a.x).getTime() - new Date(b.x).getTime());
 
-    // Create datasets for each color group
-    return Object.entries(colorGroups).map(([color, data]) => ({
+    // Create a single dataset with all points
+    return [{
       label: 'Time per Attempt',
-      data: data,
+      data: allData,
       backgroundColor: 'transparent',
-      borderColor: color,
+      borderColor: CHART_COLORS.DEFAULT,
+      borderWidth: 2,
       fill: false,
+      showLine: true,
       tension: 0.1,
       pointRadius: 6,
       pointHoverRadius: 8,
-      pointBackgroundColor: color,
-      pointBorderColor: color,
-    }));
+      pointBackgroundColor: allData.map(point => point.color),
+      pointBorderColor: allData.map(point => point.color),
+    }];
   }
 
   /**
@@ -573,14 +570,29 @@
             labels: {
               usePointStyle: true,
               generateLabels: (chart) => {
-                const datasets = chart.data.datasets;
-                return datasets.map((dataset, i) => ({
-                  text: getMedalLabel(dataset.borderColor as string),
-                  fillStyle: dataset.borderColor as string,
-                  strokeStyle: dataset.borderColor as string,
-                  pointStyle: 'circle',
-                  datasetIndex: i
-                }));
+                return [
+                  {
+                    text: 'Gold (≤30s)',
+                    fillStyle: CHART_COLORS.GOLD,
+                    strokeStyle: CHART_COLORS.GOLD,
+                    pointStyle: 'circle',
+                    datasetIndex: 0
+                  },
+                  {
+                    text: 'Silver (≤60s)',
+                    fillStyle: CHART_COLORS.SILVER,
+                    strokeStyle: CHART_COLORS.SILVER,
+                    pointStyle: 'circle',
+                    datasetIndex: 0
+                  },
+                  {
+                    text: 'Bronze (≤90s)',
+                    fillStyle: CHART_COLORS.BRONZE,
+                    strokeStyle: CHART_COLORS.BRONZE,
+                    pointStyle: 'circle',
+                    datasetIndex: 0
+                  }
+                ];
               }
             }
           },
