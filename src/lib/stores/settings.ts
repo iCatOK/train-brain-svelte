@@ -45,13 +45,11 @@ function validateSettings(settings: Partial<Settings>): Settings {
 
   if (typeof settings.dailyProblemsCount === 'number') {
     const count = Math.round(settings.dailyProblemsCount);
-    if (count >= 10 && count <= 100) {
-      validated.dailyProblemsCount = count;
-    } else {
-      console.warn(`Invalid dailyProblemsCount: ${count}, using default ${defaultSettings.dailyProblemsCount}`);
-    }
+    const min = 10;
+    const max = 100;
+    // Clamp the value to the nearest valid boundary.
+    validated.dailyProblemsCount = Math.max(min, Math.min(count, max));
   }
-
   return validated;
 }
 
@@ -117,7 +115,10 @@ function createSettingsStore() {
      * @param updater - Function that receives current settings and returns new settings
      */
     update: (updater: (current: Settings) => Settings) => {
-      update(current => validateSettings(updater(current)));
+      update(current => {
+        const updated = updater(current);
+        return validateSettings({ ...current, ...updated });
+      });
     },
     /**
      * Set settings directly (with validation)
