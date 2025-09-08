@@ -2,50 +2,203 @@
   import { drillResults } from '$lib/stores/drillResults';
   import { onMount } from 'svelte';
   import Chart from 'chart.js/auto';
-  import { weeklyTestStore } from '$lib/stores/weeklyTestResults';
+  import { weeklyTestStore, type WeeklyTestData, type CountingTestResult, type WordMemoryTestResult, type StroopTestResult } from '$lib/stores/weeklyTestResults';
   import { goto } from '$app/navigation';
-  
+  import type { DrillResult } from '$lib/types/DrillResult';
+
+  // Constants
+  const MEDAL_THRESHOLDS = {
+    GOLD: 30,
+    SILVER: 60,
+    BRONZE: 90
+  } as const;
+
+  const CHART_COLORS = {
+    GOLD: '#FFD700',
+    SILVER: '#C0C0C0',
+    BRONZE: '#CD7F32',
+    DEFAULT: '#0ea5e9',
+    WORD_ACCURACY: '#10b981'
+  } as const;
+
+  const CHART_CONFIG = {
+    PADDING: { left: 10, right: 10, top: 10, bottom: 20 },
+    FONT_SIZE: 14,
+    GRID_COLOR: '#e2e8f0',
+    TOOLTIP_BACKGROUND: 'rgba(255, 255, 255, 0.9)',
+    TOOLTIP_BORDER: '#e2e8f0'
+  } as const;
+
+  const WORD_MEMORY_TOTAL_WORDS = 20;
+  const RECENT_ACTIVITIES_LIMIT = 10;
+
+  // Type definitions
+  interface SessionData {
+    date: string;
+    dateStr: string;
+    countingTime: string;
+    wordAccuracy: string;
+    stroopTime: string;
+    wordAccuracyNum: number | null;
+    countingNum: number | null;
+    stroopNum: number | null;
+  }
+
+  interface StatsData {
+    totalDrills: number;
+    averageTime: string;
+    medals: {
+      gold: number;
+      silver: number;
+      bronze: number;
+    };
+    recentActivities: Array<{
+      date: string;
+      time: string;
+      medal: string;
+    }>;
+  }
+
+  // Utility functions
+  /**
+   * Formats a date to a short string (e.g., "Dec 25")
+   */
+  function formatDate(date: Date): string {
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  /**
+   * Formats seconds to MM:SS string
+   */
+  function formatTime(seconds: number): string {
+    if (!isFinite(seconds) || seconds < 0) return '00:00';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+  }
+
+  /**
+   * Formats date for weekly display (DD/MM/YYYY)
+   */
+  function formatWeeklyDate(dateStr: string): string {
+    try {
+      return new Date(dateStr).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch {
+      return 'Invalid Date';
+    }
+  }
+
+  /**
+   * Normalizes date string to YYYY-MM-DD format
+   */
+  function normalizeDate(dateStr: string): string {
+    try {
+      return new Date(dateStr).toISOString().split('T')[0];
+    } catch {
+      return dateStr;
+    }
+  }
+
+  /**
+   * Determines medal based on time in seconds
+   */
+  function getMedalForTime(seconds: number): 'gold' | 'silver' | 'bronze' | 'none' {
+    if (seconds < MEDAL_THRESHOLDS.GOLD) return 'gold';
+    if (seconds < MEDAL_THRESHOLDS.SILVER) return 'silver';
+    if (seconds < MEDAL_THRESHOLDS.BRONZE) return 'bronze';
+    return 'none';
+  }
+
+  /**
+   * Gets color for chart points based on time
+   */
+  function getChartColor(seconds: number): string {
+    const medal = getMedalForTime(seconds);
+    switch (medal) {
+      case 'gold': return CHART_COLORS.GOLD;
+      case 'silver': return CHART_COLORS.SILVER;
+      case 'bronze': return CHART_COLORS.BRONZE;
+      default: return CHART_COLORS.DEFAULT;
+    }
+  }
+
+  /**
+   * Gets medal label for legend based on color
+   */
+  function getMedalLabel(color: string): string {
+    switch (color) {
+      case CHART_COLORS.GOLD: return 'Gold (≤30s)';
+      case CHART_COLORS.SILVER: return 'Silver (≤60s)';
+      case CHART_COLORS.BRONZE: return 'Bronze (≤90s)';
+      default: return 'Other (>90s)';
+    }
+  }
+
+  // Component state
   let chartCanvas: HTMLCanvasElement;
   let chart: Chart;
 
   let weeklyCanvas: HTMLCanvasElement;
   let weeklyChart: Chart | null = null;
-  let activeTab = '1-120';
-  let sortKey = 'date';
-  let sortDir = -1;
-  let weeklyData: any = { countingTest: [], wordMemoryTest: [], stroopTest: [] };
-  let sessions: any[] = [];
+  let activeTab: '1-120' | 'word' | 'stroop' = '1-120';
+  let sortKey: 'date' | 'counting' | 'word' | 'stroop' = 'date';
+  let sortDir: 1 | -1 = -1;
+  let weeklyData: WeeklyTestData = { countingTest: [], wordMemoryTest: [], stroopTest: [] };
+  let sessions: SessionData[] = [];
 
   // Subscribe to weekly data
   weeklyTestStore.subscribe((data) => {
     weeklyData = data;
   });
 
-  // Update stats whenever drill results change
-  $: stats = {
-    totalDrills: $drillResults.length,
-    averageTime: formatTime(
-      $drillResults.length > 0
-        ? $drillResults.reduce((sum, dr) => {
-            // Ensure timeInSeconds is a valid number
-            const time = typeof dr.timeInSeconds === 'number' && !isNaN(dr.timeInSeconds) ? dr.timeInSeconds : 0;
-            return sum + time;
-          }, 0) / $drillResults.length
-        : 0
-    ),
-    medals: {
-      gold: $drillResults.filter(dr => dr.medal === 'gold').length,
-      silver: $drillResults.filter(dr => dr.medal === 'silver').length,
-      bronze: $drillResults.filter(dr => dr.medal === 'bronze').length
-    },
-    recentActivities: $drillResults
-      .slice(0, 10)
+  /**
+   * Calculates comprehensive statistics from drill results
+   */
+  function calculateStats(results: DrillResult[]): StatsData {
+    const totalDrills = results.length;
+
+    // Calculate average time safely
+    const validTimes = results
+      .map(dr => dr.timeInSeconds)
+      .filter(time => typeof time === 'number' && !isNaN(time) && time >= 0);
+
+    const averageTime = validTimes.length > 0
+      ? validTimes.reduce((sum, time) => sum + time, 0) / validTimes.length
+      : 0;
+
+    // Count medals
+    const medals = {
+      gold: results.filter(dr => dr.medal === 'gold').length,
+      silver: results.filter(dr => dr.medal === 'silver').length,
+      bronze: results.filter(dr => dr.medal === 'bronze').length
+    };
+
+    // Get recent activities (last RECENT_ACTIVITIES_LIMIT)
+    const recentActivities = results
+      .slice(0, RECENT_ACTIVITIES_LIMIT)
       .map(dr => ({
-        date: dr.date.toLocaleDateString(),
-        time: formatTime(typeof dr.timeInSeconds === 'number' && !isNaN(dr.timeInSeconds) ? dr.timeInSeconds : 0),
+        date: formatDate(dr.date),
+        time: formatTime(dr.timeInSeconds),
         medal: dr.medal
-      }))
-  };
+      }));
+
+    return {
+      totalDrills,
+      averageTime: formatTime(averageTime),
+      medals,
+      recentActivities
+    };
+  }
+
+  // Reactive stats calculation
+  $: stats = calculateStats($drillResults);
 
   $: if (chart) {
     updateChart($drillResults);
@@ -59,16 +212,12 @@
     updateWeeklyChart(activeTab, weeklyData);
   }
 
-  function formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric'
-    });
-  }
 
-  function updateChart(results: typeof $drillResults) {
-    // Group results by date
-    const dailyData = results.reduce((acc, result) => {
+  /**
+   * Groups drill results by date and returns daily data
+   */
+  function groupResultsByDate(results: DrillResult[]): Record<string, number[]> {
+    return results.reduce((acc, result) => {
       const date = formatDate(result.date);
       if (!acc[date]) {
         acc[date] = [];
@@ -76,225 +225,321 @@
       acc[date].push(result.timeInSeconds);
       return acc;
     }, {} as Record<string, number[]>);
+  }
 
-    const labels = Object.keys(dailyData).sort((a, b) => {
-      // Sort dates in ascending order
-      return new Date(a).getTime() - new Date(b).getTime();
+  /**
+   * Creates chart dataset from daily data
+   */
+  function createChartDataset(dailyData: Record<string, number[]>, labels: string[]) {
+    const allData = labels.map(date => {
+      const times = dailyData[date];
+      return times.map(time => ({
+        x: date,
+        y: time,
+        color: getChartColor(time)
+      }));
+    }).flat();
+
+    // Group data by color for separate datasets
+    const colorGroups: Record<string, Array<{x: string, y: number}>> = {};
+    allData.forEach(point => {
+      if (!colorGroups[point.color]) {
+        colorGroups[point.color] = [];
+      }
+      colorGroups[point.color].push({ x: point.x, y: point.y });
     });
 
-    const datasets = [{
+    // Create datasets for each color group
+    return Object.entries(colorGroups).map(([color, data]) => ({
       label: 'Time per Attempt',
-      data: labels.map(date => {
-        const times = dailyData[date];
-        return times.map(time => ({
-          x: date,
-          y: time
-        }));
-      }).flat(),
-      backgroundColor: ({ raw }: { raw: { y: number } }) => {
-        // Color points based on medal times
-        if (raw.y < 30) return '#FFD700'; // gold
-        if (raw.y < 60) return '#C0C0C0'; // silver
-        if (raw.y < 90) return '#CD7F32'; // bronze
-        return '#0ea5e9'; // default blue
-      },
-      borderColor: 'transparent',
+      data: data,
+      backgroundColor: 'transparent',
+      borderColor: color,
+      fill: false,
+      tension: 0.1,
       pointRadius: 6,
       pointHoverRadius: 8,
-    }];
-
-    chart.data.labels = labels;
-    (chart.data.datasets as any) = datasets;
-    chart.update();
+      pointBackgroundColor: color,
+      pointBorderColor: color,
+    }));
   }
 
-  function formatTime(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+  /**
+   * Updates the main drill results chart
+   */
+  function updateChart(results: DrillResult[]) {
+    if (!chart || !results) return;
+
+    try {
+      const dailyData = groupResultsByDate(results);
+      const labels = Object.keys(dailyData).sort((a, b) =>
+        new Date(a).getTime() - new Date(b).getTime()
+      );
+
+      const datasets = createChartDataset(dailyData, labels);
+
+      chart.data.labels = labels;
+      (chart.data.datasets as any) = datasets;
+      chart.update();
+    } catch (error) {
+      console.error('Error updating drill chart:', error);
+    }
   }
 
-  function formatWeeklyDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
 
-  function normalizeDate(dateStr: string): string {
-    return new Date(dateStr).toISOString().split('T')[0];
-  }
+  /**
+   * Groups test results by date, keeping the latest result per day
+   */
+  function groupTestResultsByDate<T extends { date: string }>(
+    results: T[],
+    key: keyof SessionGroup
+  ): Record<string, T> {
+    const grouped: Record<string, T> = {};
 
-  function deriveSessions(data: any): any[] {
-    // Group results by normalized date (YYYY-MM-DD)
-    const grouped: Record<string, { counting?: any, word?: any, stroop?: any }> = {};
-
-    // Process counting test results
-    data.countingTest.forEach((r: any) => {
-      const normDate = normalizeDate(r.date);
-      if (!grouped[normDate]) grouped[normDate] = {};
-      // Take the latest result for the day
-      if (!grouped[normDate].counting || new Date(r.date) > new Date(grouped[normDate].counting.date)) {
-        grouped[normDate].counting = r;
+    results.forEach(result => {
+      const normDate = normalizeDate(result.date);
+      if (!grouped[normDate] || new Date(result.date) > new Date(grouped[normDate].date)) {
+        grouped[normDate] = result;
       }
     });
 
-    // Process word memory test results
-    data.wordMemoryTest.forEach((r: any) => {
-      const normDate = normalizeDate(r.date);
-      if (!grouped[normDate]) grouped[normDate] = {};
-      if (!grouped[normDate].word || new Date(r.date) > new Date(grouped[normDate].word.date)) {
-        grouped[normDate].word = r;
-      }
+    return grouped;
+  }
+
+  interface SessionGroup {
+    counting?: CountingTestResult;
+    word?: WordMemoryTestResult;
+    stroop?: StroopTestResult;
+  }
+
+  /**
+   * Derives session data from weekly test results
+   */
+  function deriveSessions(data: WeeklyTestData): SessionData[] {
+    const grouped: Record<string, SessionGroup> = {};
+
+    // Process all test types using the generic function
+    const countingGrouped = groupTestResultsByDate(data.countingTest, 'counting');
+    const wordGrouped = groupTestResultsByDate(data.wordMemoryTest, 'word');
+    const stroopGrouped = groupTestResultsByDate(data.stroopTest, 'stroop');
+
+    // Merge all groups
+    Object.keys(countingGrouped).forEach(date => {
+      if (!grouped[date]) grouped[date] = {};
+      grouped[date].counting = countingGrouped[date];
     });
 
-    // Process stroop test results
-    data.stroopTest.forEach((r: any) => {
-      const normDate = normalizeDate(r.date);
-      if (!grouped[normDate]) grouped[normDate] = {};
-      if (!grouped[normDate].stroop || new Date(r.date) > new Date(grouped[normDate].stroop.date)) {
-        grouped[normDate].stroop = r;
-      }
+    Object.keys(wordGrouped).forEach(date => {
+      if (!grouped[date]) grouped[date] = {};
+      grouped[date].word = wordGrouped[date];
     });
 
-    // Get sorted normalized dates
-    const dates = Object.keys(grouped).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    Object.keys(stroopGrouped).forEach(date => {
+      if (!grouped[date]) grouped[date] = {};
+      grouped[date].stroop = stroopGrouped[date];
+    });
+
+    // Get sorted dates (newest first)
+    const dates = Object.keys(grouped).sort((a, b) =>
+      new Date(b).getTime() - new Date(a).getTime()
+    );
 
     return dates.map(date => {
-      const counting = grouped[date].counting;
-      const word = grouped[date].word;
-      const stroop = grouped[date].stroop;
-      const wordAccuracy = word ? ((word.wordsRecalledCount / 20) * 100).toFixed(1) + '%' : 'N/A';
+      const session = grouped[date];
+      const counting = session.counting;
+      const word = session.word;
+      const stroop = session.stroop;
+
+      const wordAccuracy = word
+        ? `${((word.wordsRecalledCount / WORD_MEMORY_TOTAL_WORDS) * 100).toFixed(1)}%`
+        : 'N/A';
+
       return {
-        date: date,
+        date,
         dateStr: formatWeeklyDate(date),
-        countingTime: counting ? counting.time + ' sec' : 'N/A',
+        countingTime: counting ? `${counting.time} sec` : 'N/A',
+        wordAccuracy,
+        stroopTime: stroop ? `${stroop.time} sec` : 'N/A',
         wordAccuracyNum: word ? (word.wordsRecalledCount / 20) * 100 : null,
         countingNum: counting ? counting.time : null,
-        stroopNum: stroop ? stroop.time : null,
-        wordAccuracy,
-        stroopTime: stroop ? stroop.time + ' sec' : 'N/A'
+        stroopNum: stroop ? stroop.time : null
       };
     });
   }
 
+  /**
+   * Sorts the sessions array based on the current sort key and direction
+   * Uses Infinity as fallback for null values to push them to the end
+   */
   function sortSessions() {
-    sessions = [...sessions].sort((a: any, b: any) => {
-      let valA, valB;
-      if (sortKey === 'date') {
-        valA = new Date(a.date).getTime();
-        valB = new Date(b.date).getTime();
-      } else if (sortKey === 'counting') {
-        valA = a.countingNum ?? Infinity;
-        valB = b.countingNum ?? Infinity;
-      } else if (sortKey === 'word') {
-        valA = a.wordAccuracyNum ?? Infinity;
-        valB = b.wordAccuracyNum ?? Infinity;
-      } else if (sortKey === 'stroop') {
-        valA = a.stroopNum ?? Infinity;
-        valB = b.stroopNum ?? Infinity;
+    sessions = [...sessions].sort((a: SessionData, b: SessionData) => {
+      let valA: number, valB: number;
+
+      try {
+        switch (sortKey) {
+          case 'date':
+            valA = new Date(a.date).getTime();
+            valB = new Date(b.date).getTime();
+            break;
+          case 'counting':
+            valA = a.countingNum ?? Infinity;
+            valB = b.countingNum ?? Infinity;
+            break;
+          case 'word':
+            valA = a.wordAccuracyNum ?? Infinity;
+            valB = b.wordAccuracyNum ?? Infinity;
+            break;
+          case 'stroop':
+            valA = a.stroopNum ?? Infinity;
+            valB = b.stroopNum ?? Infinity;
+            break;
+          default:
+            valA = valB = 0;
+        }
+
+        return (valA - valB) * sortDir;
+      } catch (error) {
+        console.warn('Error sorting sessions:', error);
+        return 0;
       }
-      return ((valA ?? 0) - (valB ?? 0)) * sortDir;
     });
   }
 
+  /**
+   * Handles table sorting when a column header is clicked
+   * @param key - The column key to sort by ('date', 'counting', 'word', 'stroop')
+   */
   function sortTable(key: string) {
-    if (sortKey === key) {
-      sortDir = sortDir === 1 ? -1 : 1;
-    } else {
-      sortKey = key;
-      sortDir = -1;
+    try {
+      if (sortKey === key) {
+        sortDir = sortDir === 1 ? -1 : 1;
+      } else {
+        sortKey = key as typeof sortKey;
+        sortDir = -1;
+      }
+      sortSessions();
+    } catch (error) {
+      console.error('Error sorting table:', error);
     }
-    sortSessions();
   }
 
-  function updateWeeklyChart(tab: string, data: any) {
+  /**
+   * Configuration for different chart tabs
+   */
+  const CHART_CONFIGS = {
+    '1-120': {
+      dataKey: 'countingTest' as keyof WeeklyTestData,
+      valueExtractor: (result: CountingTestResult) => result.time,
+      yLabel: 'Time (seconds)',
+      yMax: 120,
+      borderColor: '#0ea5e9'
+    },
+    word: {
+      dataKey: 'wordMemoryTest' as keyof WeeklyTestData,
+      valueExtractor: (result: WordMemoryTestResult) => (result.wordsRecalledCount / WORD_MEMORY_TOTAL_WORDS) * 100,
+      yLabel: 'Accuracy (%)',
+      yMax: 100,
+      borderColor: '#10b981'
+    },
+    stroop: {
+      dataKey: 'stroopTest' as keyof WeeklyTestData,
+      valueExtractor: (result: StroopTestResult) => result.time,
+      yLabel: 'Time (seconds)',
+      yMax: 120,
+      borderColor: '#0ea5e9'
+    }
+  } as const;
+
+  /**
+   * Processes test data for chart display
+   */
+  function processChartData<T extends { date: string }>(
+    results: T[],
+    valueExtractor: (result: T) => number
+  ): { labels: string[]; data: number[] } {
+    const grouped: Record<string, T> = {};
+
+    results.forEach(result => {
+      const normDate = normalizeDate(result.date);
+      if (!grouped[normDate] || new Date(result.date) > new Date(grouped[normDate].date)) {
+        grouped[normDate] = result;
+      }
+    });
+
+    const sortedResults = Object.values(grouped)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    return {
+      labels: sortedResults.map(r => formatWeeklyDate(r.date)),
+      data: sortedResults.map(valueExtractor)
+    };
+  }
+
+  /**
+   * Updates the weekly test chart based on selected tab
+   */
+  function updateWeeklyChart(tab: keyof typeof CHART_CONFIGS, data: WeeklyTestData) {
     if (!weeklyChart || !data) return;
-    const chartOptions = (weeklyChart.options as any);
-    const scales = (chartOptions.scales as any);
-    const yScale = (scales.y as any);
 
-    let labels: string[] = [];
-    let datasetData: number[] = [];
-    let yLabel = '';
-    let yMax = 120;
+    try {
+      const config = CHART_CONFIGS[tab];
+      const testData = data[config.dataKey];
 
-    if (tab === '1-120') {
-      // Group by normalized date and take latest per day
-      const grouped: Record<string, any> = {};
-      data.countingTest.forEach((r: any) => {
-        const normDate = normalizeDate(r.date);
-        if (!grouped[normDate] || new Date(r.date) > new Date(grouped[normDate].date)) {
-          grouped[normDate] = r;
-        }
-      });
-      const results = Object.values(grouped).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      labels = results.map((r: any) => formatWeeklyDate(r.date));
-      datasetData = results.map((r: any) => r.time);
-      yLabel = 'Time (seconds)';
-    } else if (tab === 'word') {
-      // Group by normalized date and take latest per day
-      const grouped: Record<string, any> = {};
-      data.wordMemoryTest.forEach((r: any) => {
-        const normDate = normalizeDate(r.date);
-        if (!grouped[normDate] || new Date(r.date) > new Date(grouped[normDate].date)) {
-          grouped[normDate] = r;
-        }
-      });
-      const results = Object.values(grouped).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      labels = results.map((r: any) => formatWeeklyDate(r.date));
-      datasetData = results.map((r: any) => (r.wordsRecalledCount / 20) * 100);
-      yLabel = 'Accuracy (%)';
-      yMax = 100;
-    } else if (tab === 'stroop') {
-      // Group by normalized date and take latest per day
-      const grouped: Record<string, any> = {};
-      data.stroopTest.forEach((r: any) => {
-        const normDate = normalizeDate(r.date);
-        if (!grouped[normDate] || new Date(r.date) > new Date(grouped[normDate].date)) {
-          grouped[normDate] = r;
-        }
-      });
-      const results = Object.values(grouped).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      labels = results.map((r: any) => formatWeeklyDate(r.date));
-      datasetData = results.map((r: any) => r.time);
-      yLabel = 'Time (seconds)';
+      let labels: string[] = [];
+      let datasetData: number[] = [];
+
+      if (tab === '1-120') {
+        const result = processChartData(testData as CountingTestResult[], config.valueExtractor as (result: CountingTestResult) => number);
+        labels = result.labels;
+        datasetData = result.data;
+      } else if (tab === 'word') {
+        const result = processChartData(testData as WordMemoryTestResult[], config.valueExtractor as (result: WordMemoryTestResult) => number);
+        labels = result.labels;
+        datasetData = result.data;
+      } else if (tab === 'stroop') {
+        const result = processChartData(testData as StroopTestResult[], config.valueExtractor as (result: StroopTestResult) => number);
+        labels = result.labels;
+        datasetData = result.data;
+      }
+
+      const datasets = [{
+        label: config.yLabel,
+        data: datasetData,
+        borderColor: config.borderColor,
+        backgroundColor: 'transparent',
+        fill: false,
+        tension: 0.1,
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }];
+
+      weeklyChart.data.labels = labels;
+      weeklyChart.data.datasets = datasets;
+
+      const chartOptions = weeklyChart.options as any;
+      const yScale = chartOptions.scales.y;
+      yScale.title.text = config.yLabel;
+      yScale.max = config.yMax;
+      yScale.min = 0;
+
+      weeklyChart.update('none');
+    } catch (error) {
+      console.error('Error updating weekly chart:', error);
     }
-
-    const datasets = [{
-      label: yLabel,
-      data: datasetData,
-      borderColor: tab === 'word' ? '#10b981' : '#0ea5e9',
-      backgroundColor: 'transparent',
-      fill: false,
-      tension: 0.1,
-      pointRadius: 5,
-      pointHoverRadius: 7
-    }];
-
-    weeklyChart.data.labels = labels;
-    weeklyChart.data.datasets = datasets;
-    yScale.title.text = yLabel;
-    yScale.max = yMax;
-    yScale.min = 0;
-    weeklyChart.update('none');
   }
 
-  onMount(() => {
-    if (!chartCanvas) return;
-
-    chart = new Chart(chartCanvas, {
-      type: 'scatter',
-      data: {
-        datasets: []
-      },
+  /**
+   * Creates and configures the main drill results line chart
+   */
+  function initializeDrillChart(): Chart {
+    return new Chart(chartCanvas, {
+      type: 'line',
+      data: { datasets: [] },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          padding: {
-            left: 10,
-            right: 10,
-            top: 10,
-            bottom: 20  // Add more bottom padding for x-axis labels
-          }
+          padding: CHART_CONFIG.PADDING
         },
         scales: {
           y: {
@@ -302,14 +547,9 @@
             title: {
               display: true,
               text: 'Time (seconds)',
-              font: {
-                size: 14,
-                weight: 'bold'
-              }
+              font: { size: CHART_CONFIG.FONT_SIZE, weight: 'bold' }
             },
-            grid: {
-              color: '#e2e8f0'
-            },
+            grid: { color: CHART_CONFIG.GRID_COLOR },
             ticks: {
               callback: (value) => formatTime(value as number)
             }
@@ -319,134 +559,132 @@
             title: {
               display: true,
               text: 'Date',
-              font: {
-                size: 14,
-                weight: 'bold'
-              },
-              padding: { bottom: 10 }  // Add padding below axis title
+              font: { size: 14, weight: 'bold' },
+              padding: { bottom: 10 }
             },
-            grid: {
-              display: false
-            },
-            ticks: {
-              padding: 8  // Add padding for axis labels
-            }
+            grid: { display: false },
+            ticks: { padding: 8 }
           }
         },
         plugins: {
           legend: {
-            display: false
+            display: true,
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              generateLabels: (chart) => {
+                const datasets = chart.data.datasets;
+                return datasets.map((dataset, i) => ({
+                  text: getMedalLabel(dataset.borderColor as string),
+                  fillStyle: dataset.borderColor as string,
+                  strokeStyle: dataset.borderColor as string,
+                  pointStyle: 'circle',
+                  datasetIndex: i
+                }));
+              }
+            }
           },
           tooltip: {
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            backgroundColor: CHART_CONFIG.TOOLTIP_BACKGROUND,
             titleColor: '#333',
-            titleFont: {
-              weight: 'bold'
-            },
+            titleFont: { weight: 'bold' },
             bodyColor: '#666',
-            borderColor: '#e2e8f0',
+            borderColor: CHART_CONFIG.TOOLTIP_BORDER,
             borderWidth: 1,
             padding: 10,
             cornerRadius: 6,
             callbacks: {
-              title: (items) => {
-                return items[0].label;
-              },
+              title: (items) => items[0].label,
               label: (context) => {
                 const seconds = context.parsed.y;
-                let medal = '';
-                if (seconds < 30) medal = ' 🥇';
-                else if (seconds < 60) medal = ' 🥈';
-                else if (seconds < 90) medal = ' 🥉';
-                return `Time: ${formatTime(seconds)}${medal}`;
+                const medal = getMedalForTime(seconds);
+                const medalEmoji = medal === 'gold' ? ' 🥇' :
+                                 medal === 'silver' ? ' 🥈' :
+                                 medal === 'bronze' ? ' 🥉' : '';
+                return `Time: ${formatTime(seconds)}${medalEmoji}`;
               }
             }
           }
         }
       }
     });
+  }
 
-    updateChart($drillResults);
+  /**
+   * Creates and configures the weekly test results line chart
+   */
+  function initializeWeeklyChart(): Chart | null {
+    if (!weeklyCanvas) return null;
 
-    // Initialize weekly chart
-    if (weeklyCanvas) {
-      weeklyChart = new Chart(weeklyCanvas, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: []
+    return new Chart(weeklyCanvas, {
+      type: 'line',
+      data: { labels: [], datasets: [] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: CHART_CONFIG.PADDING
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: {
-            padding: {
-              left: 10,
-              right: 10,
-              top: 10,
-              bottom: 20
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Time (seconds)',
-                font: {
-                  size: 14,
-                  weight: 'bold'
-                }
-              },
-              grid: {
-                color: '#e2e8f0'
-              }
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Time (seconds)',
+              font: { size: CHART_CONFIG.FONT_SIZE, weight: 'bold' }
             },
-            x: {
-              title: {
-                display: true,
-                text: 'Date',
-                font: {
-                  size: 14,
-                  weight: 'bold'
-                },
-                padding: { bottom: 10 }
-              },
-              grid: {
-                display: false
-              },
-              ticks: {
-                padding: 8
-              }
-            }
+            grid: { color: CHART_CONFIG.GRID_COLOR }
           },
-          plugins: {
-            legend: {
-              display: false
+          x: {
+            title: {
+              display: true,
+              text: 'Date',
+              font: { size: CHART_CONFIG.FONT_SIZE, weight: 'bold' },
+              padding: { bottom: 10 }
             },
-            tooltip: {
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              titleColor: '#333',
-              titleFont: {
-                weight: 'bold'
-              },
-              bodyColor: '#666',
-              borderColor: '#e2e8f0',
-              borderWidth: 1,
-              padding: 10,
-              cornerRadius: 6
-            }
+            grid: { display: false },
+            ticks: { padding: 8 }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: CHART_CONFIG.TOOLTIP_BACKGROUND,
+            titleColor: '#333',
+            titleFont: { weight: 'bold' },
+            bodyColor: '#666',
+            borderColor: CHART_CONFIG.TOOLTIP_BORDER,
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 6
           }
         }
-      });
+      }
+    });
+  }
+
+  /**
+   * Cleanup function for charts
+   */
+  function cleanupCharts() {
+    if (chart) chart.destroy();
+    if (weeklyChart) weeklyChart.destroy();
+  }
+
+  onMount(() => {
+    if (!chartCanvas) return;
+
+    // Initialize charts
+    chart = initializeDrillChart();
+    weeklyChart = initializeWeeklyChart();
+
+    // Initial data updates
+    updateChart($drillResults);
+    if (weeklyChart && weeklyData) {
+      updateWeeklyChart(activeTab, weeklyData);
     }
 
-    return () => {
-      chart.destroy();
-      if (weeklyChart) {
-        weeklyChart.destroy();
-      }
-    };
+    return cleanupCharts;
   });
 </script>
 
@@ -506,21 +744,21 @@
     <h2>Weekly Test Statistics</h2>
 
     <div class="weekly-table-container">
-      <table class="weekly-table" role="table" aria-label="Weekly test results">
-        <thead role="rowgroup">
-          <tr role="row">
-            <th role="columnheader" onclick={() => sortTable('date')} aria-sort={sortKey === 'date' ? sortDir === -1 ? 'descending' : 'ascending' : 'none'}>Date</th>
-            <th role="columnheader" onclick={() => sortTable('counting')} aria-sort={sortKey === 'counting' ? sortDir === -1 ? 'descending' : 'ascending' : 'none'}>1-120 Time (sec)</th>
-            <th role="columnheader" onclick={() => sortTable('word')} aria-sort={sortKey === 'word' ? sortDir === -1 ? 'descending' : 'ascending' : 'none'}>Word Memory Accuracy (%)</th>
-            <th role="columnheader" onclick={() => sortTable('stroop')} aria-sort={sortKey === 'stroop' ? sortDir === -1 ? 'descending' : 'ascending' : 'none'}>Stroop Time (sec)</th>
+      <table class="weekly-table" aria-label="Weekly test results">
+        <thead>
+          <tr>
+            <th onclick={() => sortTable('date')} aria-sort={sortKey === 'date' ? sortDir === -1 ? 'descending' : 'ascending' : 'none'}>Date</th>
+            <th onclick={() => sortTable('counting')} aria-sort={sortKey === 'counting' ? sortDir === -1 ? 'descending' : 'ascending' : 'none'}>1-120 Time (sec)</th>
+            <th onclick={() => sortTable('word')} aria-sort={sortKey === 'word' ? sortDir === -1 ? 'descending' : 'ascending' : 'none'}>Word Memory Accuracy (%)</th>
+            <th onclick={() => sortTable('stroop')} aria-sort={sortKey === 'stroop' ? sortDir === -1 ? 'descending' : 'ascending' : 'none'}>Stroop Time (sec)</th>
           </tr>
         </thead>
-        <tbody role="rowgroup">
+        <tbody>
           {#each sessions as session (session.date)}
-            <tr role="row">
-              <td role="cell">{session.dateStr}</td>
-              <td role="cell">{session.countingTime}</td>
-              <td role="cell">{session.wordAccuracy}</td>
+            <tr>
+              <td>{session.dateStr}</td>
+              <td>{session.countingTime}</td>
+              <td>{session.wordAccuracy}</td>
               <td role="cell">{session.stroopTime}</td>
             </tr>
           {/each}
@@ -746,22 +984,6 @@
     border-radius: 8px;
     padding: 16px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .back-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #6b7280;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    margin-top: 16px;
-    transition: background-color 0.2s;
-    text-align: center;
-  }
-
-  .back-button:hover {
-    background-color: #4b5563;
   }
 
   @media (max-width: 768px) {
