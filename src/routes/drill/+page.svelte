@@ -195,7 +195,6 @@
           </span>
         </p>
             <div class="results-actions">
-              <button on:click={() => { resetToIdle(); startDrill(); }}>Try Again</button>
               <button on:click={() => goto('/')}>Go Home</button>
             </div>
         </div>

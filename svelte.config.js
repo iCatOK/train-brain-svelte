@@ -21,8 +21,7 @@ const config = {
   	},
 		csp: {
 			mode: 'auto'
-		},
-		compression: true
+		}
 	}
 };
 
