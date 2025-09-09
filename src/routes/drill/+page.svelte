@@ -1,146 +1,43 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { ProblemGenerator, type Problem } from '$lib/ProblemGenerator'; // Ensure path is correct
-  import type { Medal } from '$lib/types'; // Ensure path is correct
   import { goto } from '$app/navigation';
   import { settings } from '$lib/stores/settings';
-  import { drillResults } from '$lib/stores/drillResults';
-  import { dailyDrillPending } from '$lib/stores/dailyDrill';
   import { dayCounter } from '$lib/stores/dayCounter';
-  import type { DrillResult } from '$lib/types/DrillResult';
+  import { drillStore } from '$lib/stores/drillStore';
 
   $: TOTAL_PROBLEMS = $settings.dailyProblemsCount;
-  let problems: Problem[] = [];
-  let currentProblemIndex = 0;
-  let userAnswer: string = ''; // Use string for input binding
-  let score = 0; // Or could be number of correct answers
-
-  let startTime: number | null = null;
-  let elapsedTimeInSeconds = 0;
-  let timerInterval: ReturnType<typeof setInterval> | undefined = undefined;
-  let formattedTime = '00:00';
-
-  let gameState: 'idle' | 'drilling' | 'finished' = 'idle';
-  let awardedMedal: Medal = 'none';
+  $: drillState = $drillStore;
 
   let answerInput: HTMLInputElement;
+  let localUserAnswer = '';
 
-  function formatTimeDisplay(totalSeconds: number): string {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  }
-
-  function startTimer() {
-    startTime = Date.now();
-    elapsedTimeInSeconds = 0;
-    formattedTime = formatTimeDisplay(0);
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      if (startTime) {
-        elapsedTimeInSeconds = Math.floor((Date.now() - startTime) / 1000);
-        formattedTime = formatTimeDisplay(elapsedTimeInSeconds);
-      }
-    }, 1000);
-  }
-
-  function stopTimer() {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = undefined;
-    }
-    if (startTime) {
-        elapsedTimeInSeconds = Math.floor((Date.now() - startTime) / 1000); // final accurate time
-        formattedTime = formatTimeDisplay(elapsedTimeInSeconds);
-    }
-  }
-
-  function calculateMedal(timeSeconds: number): Medal {
-    if (timeSeconds < 30) return 'gold';
-    if (timeSeconds < 60) return 'silver';
-    if (timeSeconds < 90) return 'bronze';
-    return 'none';
+  // Clear local answer when starting a new drill or when drill state resets
+  $: if (drillState.gameState === 'idle' || drillState.gameState === 'finished') {
+    localUserAnswer = '';
   }
 
   function startDrill() {
-    problems = ProblemGenerator.generateProblems(TOTAL_PROBLEMS);
-    if (problems.length === 0) {
-        alert("Could not generate problems. Please check ProblemGenerator.");
-        gameState = 'idle';
-        return;
-    }
-    currentProblemIndex = 0;
-    userAnswer = '';
-    score = 0; // Reset score if you track correct answers
-    gameState = 'drilling';
-    startTimer();
+    drillStore.startDrill(TOTAL_PROBLEMS);
   }
 
   function handleSubmit(event: Event) {
     event.preventDefault();
-    if (gameState !== 'drilling' || problems.length === 0) return;
+    if (drillState.gameState !== 'drilling' || drillState.problems.length === 0) return;
 
-    const currentProblem = problems[currentProblemIndex];
-    const userAnswerNum = parseInt(userAnswer, 10);
-    let canContinue = true;
-
-    if (!isNaN(userAnswerNum) && userAnswerNum === currentProblem.answer) {
-      score++; // Optional: track correct answers
-    } else {
-      // Optional: handle incorrect answer (e.g., show feedback, dock points)
-      canContinue = false;
-    }
-
-    userAnswer = ''; // Clear input
-
-    if (canContinue) {
-      currentProblemIndex++;
-    }
-
-    if (currentProblemIndex > problems.length - 1) {
-      finishDrill();
-    }
-
+    drillStore.submitAnswer(localUserAnswer);
+    localUserAnswer = ''; // Clear the input after submission
     answerInput?.focus();
   }
 
-  function finishDrill() {
-    stopTimer();
-    awardedMedal = calculateMedal(elapsedTimeInSeconds);
-    gameState = 'finished';
-    
-    // Save drill result
-    const result: DrillResult = {
-      id: crypto.randomUUID(),
-      date: new Date(),
-      timeInSeconds: elapsedTimeInSeconds,
-      problemCount: problems.length,
-      correctCount: score,
-      medal: awardedMedal
-    };
-    drillResults.addResult(result);
-    dailyDrillPending.markCompleted();
-    
-    // Record the first day if this is the user's first drill
-    dayCounter.recordFirstDay();
-  }
-
   function goBack() {
-    stopTimer(); // Stop timer if running
-    resetToIdle(); // Reset local state
-    goto('/'); // Navigate to home page
+    drillStore.stopTimer();
+    drillStore.resetToIdle();
+    goto('/');
   }
 
-  function resetToIdle() {
-    stopTimer();
-    problems = [];
-    currentProblemIndex = 0;
-    userAnswer = '';
-    score = 0;
-    elapsedTimeInSeconds = 0;
-    formattedTime = '00:00';
-    gameState = 'idle';
-    awardedMedal = 'none';
+  function tryAgain() {
+    drillStore.resetToIdle();
+    startDrill();
   }
 
   onMount(() => {
@@ -149,23 +46,25 @@
   });
 
   onDestroy(() => {
-    stopTimer();
+    drillStore.stopTimer();
   });
 
-  $: currentProblemDisplay = problems.length > 0 && gameState === 'drilling' ? problems[currentProblemIndex] : null;
+  $: currentProblemDisplay = drillState.problems.length > 0 && drillState.gameState === 'drilling'
+    ? drillState.problems[drillState.currentProblemIndex]
+    : null;
 </script>
 
 <div class="page-container">
   <div class="drill-card">
-    {#if gameState === 'idle'}
+    {#if drillState.gameState === 'idle'}
       <button class="start-button" on:click={startDrill}>Start Daily Drill</button>
-    {:else if gameState === 'drilling' && currentProblemDisplay}
+    {:else if drillState.gameState === 'drilling' && currentProblemDisplay}
       <div class="header-controls">
         <button class="back-button" on:click={goBack} aria-label="Go back">←</button>
-        <div class="stopwatch">{formattedTime}</div>
+        <div class="stopwatch">{drillState.formattedTime}</div>
       </div>
       <div class="progress-indicator">
-        Problem {currentProblemIndex + 1} of {problems.length}
+        Problem {drillState.currentProblemIndex + 1} of {drillState.problems.length}
       </div>
       <div class="problem-area">
         {currentProblemDisplay.problem} = ?
@@ -173,7 +72,7 @@
       <form on:submit={handleSubmit} class="answer-form">
         <input
           type="number"
-          bind:value={userAnswer}
+          bind:value={localUserAnswer}
           bind:this={answerInput}
           placeholder="Enter your answer"
           aria-label="Your answer"
@@ -181,21 +80,21 @@
         />
         <button type="submit">Submit</button>
       </form>
-    {:else if gameState === 'finished'}
+    {:else if drillState.gameState === 'finished'}
       <div class="results-area">
         <h2>🎉 Congrats! 🎉</h2>
-        <p>Your time: <strong>{formattedTime}</strong></p>
+        <p>Your time: <strong>{drillState.formattedTime}</strong></p>
         <p>
           Medal:
-          <span class="medal medal-{awardedMedal}">
-            {#if awardedMedal === 'gold'}🥇 Gold{/if}
-            {#if awardedMedal === 'silver'}🥈 Silver{/if}
-            {#if awardedMedal === 'bronze'}🥉 Bronze{/if}
-            {#if awardedMedal === 'none'}No Medal{/if}
+          <span class="medal medal-{drillState.awardedMedal}">
+            {#if drillState.awardedMedal === 'gold'}🥇 Gold{/if}
+            {#if drillState.awardedMedal === 'silver'}🥈 Silver{/if}
+            {#if drillState.awardedMedal === 'bronze'}🥉 Bronze{/if}
+            {#if drillState.awardedMedal === 'none'}No Medal{/if}
           </span>
         </p>
             <div class="results-actions">
-              <button on:click={() => { resetToIdle(); startDrill(); }}>Try Again</button>
+              <button on:click={tryAgain}>Try Again</button>
               <button on:click={() => goto('/')}>Go Home</button>
             </div>
         </div>
