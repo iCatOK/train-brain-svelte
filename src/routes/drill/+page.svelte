@@ -23,6 +23,8 @@
   let gameState: 'idle' | 'drilling' | 'finished' = 'idle';
   let awardedMedal: Medal = 'none';
 
+  let answerInput: HTMLInputElement;
+
   function formatTimeDisplay(totalSeconds: number): string {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
@@ -98,6 +100,8 @@
     if (currentProblemIndex > problems.length - 1) {
       finishDrill();
     }
+
+    answerInput?.focus();
   }
 
   function finishDrill() {
@@ -122,10 +126,6 @@
   }
 
   function goBack() {
-    // For a real app, use SvelteKit's goto:
-    // import { goto } from '$app/navigation';
-    // goto('/');
-    // For this MVP, just reset to allow restart
     stopTimer(); // Stop timer if running
     resetToIdle(); // Reset local state
     goto('/'); // Navigate to home page
@@ -142,7 +142,6 @@
     gameState = 'idle';
     awardedMedal = 'none';
   }
-
 
   onMount(() => {
     // Initialize the day counter
@@ -175,6 +174,7 @@
         <input
           type="number"
           bind:value={userAnswer}
+          bind:this={answerInput}
           placeholder="Enter your answer"
           aria-label="Your answer"
           required
@@ -195,6 +195,7 @@
           </span>
         </p>
             <div class="results-actions">
+              <button on:click={() => { resetToIdle(); startDrill(); }}>Try Again</button>
               <button on:click={() => goto('/')}>Go Home</button>
             </div>
         </div>
