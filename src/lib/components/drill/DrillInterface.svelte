@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { DrillState } from '$lib/stores/drillStore';
   import type { Problem } from '$lib/types';
+  import { onDestroy } from 'svelte';
+  import { drillStore } from '$lib/stores/drillStore';
 
   export let drillState: DrillState;
   export let currentProblemDisplay: Problem | null;
@@ -8,6 +10,30 @@
   export let goBack: () => void;
   export let localUserAnswer: string;
   export let answerInput: HTMLInputElement;
+
+  let errorTimeout: number | null = null;
+
+  $: if (drillState.inputError && !errorTimeout) {
+    errorTimeout = setTimeout(() => {
+      drillStore.clearInputError();
+      errorTimeout = null;
+    }, 2500);
+  }
+
+  $: if (!drillState.inputError && errorTimeout) {
+    clearTimeout(errorTimeout);
+    errorTimeout = null;
+  }
+
+  function handleInput() {
+    drillStore.clearInputError();
+  }
+
+  onDestroy(() => {
+    if (errorTimeout) {
+      clearTimeout(errorTimeout);
+    }
+  });
 </script>
 
 <div class="header-controls">
@@ -27,9 +53,17 @@
     bind:this={answerInput}
     placeholder="Enter your answer"
     aria-label="Your answer"
+    aria-invalid={drillState.inputError}
+    aria-describedby={drillState.inputError ? "error-desc" : undefined}
     required
+    on:input={handleInput}
+    class:error={drillState.inputError}
   />
   <button type="submit">Submit</button>
+
+  {#if drillState.inputError}
+    <div class="error-message" id="error-desc" role="alert">Incorrect answer. Please try again.</div>
+  {/if}
 </form>
 
 <style>
@@ -106,5 +140,24 @@
 
   .answer-form button:hover {
     background-color: #0284c7;
+  }
+
+  .answer-form input.error {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  }
+
+  .error-message {
+    color: #ef4444;
+    font-size: 0.9em;
+    margin-top: 8px;
+    text-align: center;
   }
 </style>

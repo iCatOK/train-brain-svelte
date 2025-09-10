@@ -38,7 +38,7 @@
     try {
       resetService.resetAllProgress();
       showResetConfirm = false;
-      // Optionally show a success message or redirect
+      goto('/')
     } catch (error) {
       console.error('Reset failed:', error);
       // Could show an error message to the user here

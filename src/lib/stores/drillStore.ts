@@ -43,6 +43,7 @@ export interface DrillState {
   formattedTime: string;
   gameState: 'idle' | 'drilling' | 'finished';
   awardedMedal: Medal;
+  inputError: boolean;
 }
 
 /**
@@ -58,7 +59,8 @@ const initialState: DrillState = {
   timerInterval: undefined,
   formattedTime: '00:00',
   gameState: 'idle',
-  awardedMedal: 'none'
+  awardedMedal: 'none',
+  inputError: false
 };
 
 /**
@@ -181,12 +183,14 @@ function createDrillStore() {
       let canContinue = true;
 
       let newScore = state.score;
+      let inputError = false;
       if (!isNaN(userAnswerNum) && userAnswerNum === currentProblem.answer) {
         newScore++;
       } else {
         canContinue = false;
+        inputError = true;
       }
-
+    
       let newIndex = state.currentProblemIndex;
       if (canContinue) {
         newIndex++;
@@ -203,7 +207,8 @@ function createDrillStore() {
           currentProblemIndex: newIndex,
           elapsedTimeInSeconds: finalTime,
           formattedTime: formatTimeDisplay(finalTime),
-          gameState: 'finished' as const
+          gameState: 'finished' as const,
+          inputError: false
         };
 
         // Calculate medal and save result
@@ -229,7 +234,8 @@ function createDrillStore() {
         return {
           ...finalState,
           awardedMedal,
-          timerInterval: undefined // Ensure timer is cleared
+          timerInterval: undefined, // Ensure timer is cleared,
+          inputError: false
         };
       }
 
@@ -237,7 +243,8 @@ function createDrillStore() {
         ...state,
         userAnswer: '',
         score: newScore,
-        currentProblemIndex: newIndex
+        currentProblemIndex: newIndex,
+        inputError
       };
     });
   }
@@ -249,7 +256,14 @@ function createDrillStore() {
     stopTimer();
     set(initialState);
   }
-
+  
+  /**
+   * Clears input error state
+   */
+  function clearInputError() {
+    update(state => ({ ...state, inputError: false }));
+  }
+  
   /**
    * Updates user answer (for binding)
    */
@@ -262,6 +276,7 @@ function createDrillStore() {
     startDrill,
     submitAnswer,
     resetToIdle,
+    clearInputError,
     updateUserAnswer,
     stopTimer
   };
