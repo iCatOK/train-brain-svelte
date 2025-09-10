@@ -1,8 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { settings } from '$lib/stores/settings';
-  import { drillResults } from '$lib/stores/drillResults';
-  import { weeklyTestStore } from '$lib/stores/weeklyTestResults';
+  import { resetService } from '$lib/resetService';
   import DailyProblemsForm from '$lib/components/settings/DailyProblemsForm.svelte';
   import ResetProgress from '$lib/components/settings/ResetProgress.svelte';
   import ConfirmationDialog from '$lib/components/settings/ConfirmationDialog.svelte';
@@ -36,15 +35,14 @@
   }
 
   function confirmReset() {
-    drillResults.clearResults();
-    weeklyTestStore.clearAllResults();
-
-    // Clear first and last drill dates from localStorage
-    localStorage.removeItem('firstDrillDay');
-    localStorage.removeItem('lastDrillDate');
-
-    showResetConfirm = false;
-    // Optionally show a success message or redirect
+    try {
+      resetService.resetAllProgress();
+      showResetConfirm = false;
+      // Optionally show a success message or redirect
+    } catch (error) {
+      console.error('Reset failed:', error);
+      // Could show an error message to the user here
+    }
   }
 
   function cancelReset() {

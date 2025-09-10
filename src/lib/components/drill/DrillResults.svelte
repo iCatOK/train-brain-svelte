@@ -2,7 +2,7 @@
   import type { DrillState } from '$lib/stores/drillStore';
 
   export let drillState: DrillState;
-  export let goto: (path: string) => void;
+  export let onGoHome: () => void;
 </script>
 
 <div class="results-area">
@@ -18,7 +18,7 @@
     </span>
   </p>
   <div class="results-actions">
-    <button on:click={() => goto('/')}>Go Home</button>
+    <button on:click={() => onGoHome()}>Go Home</button>
   </div>
 </div>
 

@@ -59,7 +59,7 @@
     {:else if drillState.gameState === 'drilling' && currentProblemDisplay}
       <DrillInterface {drillState} {currentProblemDisplay} {handleSubmit} {goBack} bind:localUserAnswer bind:answerInput />
     {:else if drillState.gameState === 'finished'}
-      <DrillResults {drillState} {goto} />
+      <DrillResults drillState = {drillState} onGoHome = {goBack} />
     {/if}
   </div>
 </div>
