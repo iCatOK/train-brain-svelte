@@ -13,9 +13,6 @@
     return page.url.pathname === path;
   }
 
-  // Debug state
-  let authDebug = false;
-  let debug = false;
 </script>
 
 <div class="app-container">
@@ -48,21 +45,6 @@
     <slot />
   </main>
 
-  <!-- Optional: Debug toggles -->
-  <footer class="app-footer-debug">
-    <div class="debug-control">
-      <label>
-        <input type="checkbox" bind:checked={authDebug} />
-        <span>Auth Debug</span>
-      </label>
-    </div>
-    <div class="debug-control">
-      <label>
-        <input type="checkbox" bind:checked={debug} />
-        <span>Debug</span>
-      </label>
-    </div>
-  </footer>
 </div>
 
 <style>
@@ -160,32 +142,6 @@
     background-color: inherit;
   }
 
-  .app-footer-debug {
-    background-color: #1e293b;
-    color: #94a3b8;
-    padding: 10px 24px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 20px;
-    font-size: 0.8rem;
-  }
-
-  .debug-control label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: color 0.2s ease;
-  }
-
-  .debug-control label:hover {
-    color: #cbd5e1;
-  }
-
-  .debug-control input[type="checkbox"] {
-    margin: 0;
-  }
-
   /* Responsive design */
   @media (max-width: 768px) {
     .app-header {
@@ -196,12 +152,6 @@
 
     .main-nav {
       gap: 16px;
-    }
-
-    .app-footer-debug {
-      flex-direction: column;
-      gap: 10px;
-      text-align: center;
     }
   }
 </style>

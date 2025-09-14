@@ -4,6 +4,7 @@
   import Chart from 'chart.js/auto';
   import { weeklyTestStore, type WeeklyTestData, type CountingTestResult, type WordMemoryTestResult, type StroopTestResult } from '$lib/stores/weeklyTestResults';
   import type { DrillResult } from '$lib/types/DrillResult';
+  import DebugPanel from '$lib/components/debug/DebugPanel.svelte';
 
   // Constants
   const MEDAL_THRESHOLDS = {
@@ -799,6 +800,9 @@
   </div>
   {/if}
 </div>
+
+<!-- Debug Panel -->
+<DebugPanel />
 
 <style>
   .page-container {
