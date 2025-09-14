@@ -103,30 +103,25 @@ function createDebugStore() {
     const now = new Date();
 
     for (let dayOffset = days - 1; dayOffset >= 0; dayOffset--) {
-      // Check if user participated this day (based on participation rate)
-      if (Math.random() > participationRate) {
-        continue; // Skip this day
-      }
+      if (Math.random() > participationRate) continue;
 
       const date = new Date(now);
       date.setDate(date.getDate() - dayOffset);
-      
-      // Generate exactly 1 result for this day (business rule)
+      date.setHours(0, 0, 0, 0); // normalize to start of day
+
       const medal = selectMedal(medalDistribution);
       const baseTime = generateTimeForMedal(medal);
       const timeInSeconds = Math.max(10, applyPattern(baseTime, dayOffset, days, pattern));
-      
-      // Add some random variation (±5 seconds)
       const timeWithVariation = timeInSeconds + (Math.random() - 0.5) * 10;
       const finalTime = Math.max(10, timeWithVariation);
 
       results.push({
         id: crypto.randomUUID(),
-        date: date,
+        date,
         timeInSeconds: finalTime,
         problemCount: 10,
         correctCount: 10,
-        medal: medal
+        medal
       });
     }
 
