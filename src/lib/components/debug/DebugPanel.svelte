@@ -9,21 +9,22 @@
 
   // Environment-based debug mode availability
   const isDebugModeAvailable = (() => {
-    const explicitSetting = import.meta.env.VITE_DEBUG_MODE_ENABLED;
-    const autoDetect = import.meta.env.VITE_DEBUG_MODE_AUTO;
-    
-    // If explicitly set, use that value
-    if (explicitSetting !== undefined) {
-      return explicitSetting === 'true';
+    const toBool = (v: unknown) => v === 'true' || v === true;
+    const explicitSetting = toBool(import.meta.env.VITE_DEBUG_MODE_ENABLED);
+    const autoDetect = toBool(import.meta.env.VITE_DEBUG_MODE_AUTO);
+    const isDev = !!import.meta.env.DEV;
+
+    // Require explicit enable in production; in dev allow auto when opted-in
+    if (!isDev) {
+      return explicitSetting === true; // production: only explicit true enables
     }
-    
-    // If auto-detect is enabled, enable in development only
-    if (autoDetect === 'true') {
-      return import.meta.env.DEV;
-    }
-    
-    // Default: disabled in production, enabled in development
-    return import.meta.env.DEV;
+
+    // development: explicit true enables, otherwise allow auto if requested
+    if (explicitSetting === true) return true;
+    if (autoDetect === true) return true;
+
+    // default safe: disabled unless explicitly turned on
+    return false;
   })();
 
   // Subscribe to debug store
