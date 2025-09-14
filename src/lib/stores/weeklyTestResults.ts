@@ -61,9 +61,9 @@ function createWeeklyTestStore() {
   });
 
   // Counting Test Functions
-  function addCountingTestResult(timeInSeconds: number): void {
+  function addCountingTestResult(timeInSeconds: number, date?: string): void {
     const newResult: CountingTestResult = {
-      date: new Date().toISOString(),
+      date: date || new Date().toISOString(),
       time: timeInSeconds,
     };
     store.update((currentData) => {
@@ -82,9 +82,9 @@ function createWeeklyTestStore() {
   }
 
   // Word Memory Test Functions
-  function addWordMemoryTestResult(presentedCount: number, recalledCount: number): void {
+  function addWordMemoryTestResult(presentedCount: number, recalledCount: number, date?: string): void {
     const newResult: WordMemoryTestResult = {
-      date: new Date().toISOString(),
+      date: date || new Date().toISOString(),
       wordsPresentedCount: presentedCount,
       wordsRecalledCount: recalledCount,
     };
@@ -104,9 +104,9 @@ function createWeeklyTestStore() {
   }
 
   // Stroop Test Functions
-  function addStroopTestResult(timeInSeconds: number): void {
+  function addStroopTestResult(timeInSeconds: number, date?: string): void {
     const newResult: StroopTestResult = {
-      date: new Date().toISOString(),
+      date: date || new Date().toISOString(),
       time: timeInSeconds,
     };
     store.update((currentData) => {
@@ -141,6 +141,25 @@ function createWeeklyTestStore() {
     addStroopTestResult,
     getStroopTestResults,
     clearAllResults,
+    // Debug methods for bulk data insertion
+    setCountingTestResults: (results: CountingTestResult[]) => {
+      store.update((currentData) => ({
+        ...currentData,
+        countingTest: results
+      }));
+    },
+    setWordMemoryTestResults: (results: WordMemoryTestResult[]) => {
+      store.update((currentData) => ({
+        ...currentData,
+        wordMemoryTest: results
+      }));
+    },
+    setStroopTestResults: (results: StroopTestResult[]) => {
+      store.update((currentData) => ({
+        ...currentData,
+        stroopTest: results
+      }));
+    },
   };
 }
 

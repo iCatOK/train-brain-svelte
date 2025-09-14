@@ -38,15 +38,6 @@
       targetRoute: '/settings', // Example route
     },
     {
-      icon: '👤',
-      iconClass: 'profile-icon',
-      title: 'Profile',
-      subtitle: 'View your personal statistics',
-      description: 'Check your personal profile and track your progress over time.',
-      buttonText: 'View Profile',
-      targetRoute: '/profile', // Example route
-    },
-    {
       icon: '📝',
       iconClass: 'weekly-test-icon',
       title: 'Weekly Tests',

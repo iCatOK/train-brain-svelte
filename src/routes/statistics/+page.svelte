@@ -4,6 +4,7 @@
   import Chart from 'chart.js/auto';
   import { weeklyTestStore, type WeeklyTestData, type CountingTestResult, type WordMemoryTestResult, type StroopTestResult } from '$lib/stores/weeklyTestResults';
   import type { DrillResult } from '$lib/types/DrillResult';
+  import DebugPanel from '$lib/components/debug/DebugPanel.svelte';
 
   // Constants
   const MEDAL_THRESHOLDS = {
@@ -800,6 +801,9 @@
   {/if}
 </div>
 
+<!-- Debug Panel -->
+<DebugPanel />
+
 <style>
   .page-container {
     display: flex;
@@ -869,16 +873,31 @@
   }
 
   .activity-item {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 4rem 1fr 2rem;
+    gap: 12px;
+    align-items: center;
     padding: 12px;
     background-color: #f8fafc;
     border-radius: 8px;
   }
 
-  .date { color: #666; }
-  .time { color: #0ea5e9; font-weight: bold; }
-  .medal { font-size: 1.2em; }
+  .date {
+    color: #666;
+    grid-column: 1;
+    text-align: left;
+  }
+  .time {
+    color: #0ea5e9;
+    font-weight: bold;
+    grid-column: 2;
+    text-align: center;
+  }
+  .medal {
+    font-size: 1.2em;
+    grid-column: 3;
+    text-align: center;
+  }
   .chart-container {
     margin-top: 32px;
     padding-top: 24px;
