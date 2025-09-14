@@ -875,14 +875,32 @@
   .activity-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 12px;
     background-color: #f8fafc;
     border-radius: 8px;
+    position: relative;
   }
 
-  .date { color: #666; }
-  .time { color: #0ea5e9; font-weight: bold; }
-  .medal { font-size: 1.2em; }
+  .date {
+    color: #666;
+    flex: 0 0 auto;
+  }
+  .time {
+    color: #0ea5e9;
+    font-weight: bold;
+    flex: 1;
+    text-align: center;
+  }
+  .medal {
+    font-size: 1.2em;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    min-width: 1.5em;
+    text-align: center;
+  }
   .chart-container {
     margin-top: 32px;
     padding-top: 24px;
