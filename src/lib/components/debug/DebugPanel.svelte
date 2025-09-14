@@ -7,11 +7,32 @@
   let isVisible = false;
   let isExpanded = false;
 
+  // Environment-based debug mode availability
+  const isDebugModeAvailable = (() => {
+    const explicitSetting = import.meta.env.VITE_DEBUG_MODE_ENABLED;
+    const autoDetect = import.meta.env.VITE_DEBUG_MODE_AUTO;
+    
+    // If explicitly set, use that value
+    if (explicitSetting !== undefined) {
+      return explicitSetting === 'true';
+    }
+    
+    // If auto-detect is enabled, enable in development only
+    if (autoDetect === 'true') {
+      return import.meta.env.DEV;
+    }
+    
+    // Default: disabled in production, enabled in development
+    return import.meta.env.DEV;
+  })();
+
   // Subscribe to debug store
   $: debugState = $debugStore;
 
   // Keyboard shortcut activation
   function handleKeydown(event: KeyboardEvent) {
+    if (!isDebugModeAvailable) return; // Block keyboard shortcuts if debug mode is disabled
+    
     if (event.ctrlKey && event.shiftKey && event.key === 'D') {
       event.preventDefault();
       toggleDebugMode();
@@ -80,15 +101,18 @@
   }
 
   onMount(() => {
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
+    if (isDebugModeAvailable) {
+      window.addEventListener('keydown', handleKeydown);
+      return () => window.removeEventListener('keydown', handleKeydown);
+    }
   });
 </script>
 
-<!-- Debug Toggle Button (always visible on statistics page) -->
+<!-- Debug Toggle Button (only visible when debug mode is available) -->
+{#if isDebugModeAvailable}
 <div class="debug-toggle">
-  <button 
-    class="toggle-btn" 
+  <button
+    class="toggle-btn"
     class:active={isVisible}
     onclick={toggleDebugMode}
     title="Toggle Debug Mode (Ctrl+Shift+D)"
@@ -96,9 +120,10 @@
     🐛
   </button>
 </div>
+{/if}
 
-<!-- Debug Panel -->
-{#if isVisible}
+<!-- Debug Panel (only when debug mode is available and visible) -->
+{#if isDebugModeAvailable && isVisible}
   <div class="debug-panel" class:expanded={isExpanded}>
     <div class="debug-header">
       <div class="debug-title">

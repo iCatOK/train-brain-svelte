@@ -4,9 +4,37 @@
 
 The debug mode provides comprehensive testing capabilities for chart rendering and data visualization in the Train Brain Game statistics page. It generates realistic test data to help developers test different scenarios and chart states.
 
+## Environment Configuration
+
+### Environment Variables
+
+Debug mode availability is controlled by environment variables:
+
+- **`VITE_DEBUG_MODE_ENABLED`**: Explicitly enable/disable debug mode (`true`/`false`)
+- **`VITE_DEBUG_MODE_AUTO`**: Auto-detect based on environment (`true`/`false`)
+
+### Configuration Files
+
+#### Local Development (`.env`)
+```bash
+VITE_DEBUG_MODE_ENABLED=true
+VITE_DEBUG_MODE_AUTO=true
+```
+
+#### Production (Netlify)
+```bash
+VITE_DEBUG_MODE_ENABLED=false
+VITE_DEBUG_MODE_AUTO=false
+```
+
+### Logic Flow
+1. If `VITE_DEBUG_MODE_ENABLED` is set, use that value
+2. If `VITE_DEBUG_MODE_AUTO=true`, enable in development, disable in production
+3. Default: enabled in development, disabled in production
+
 ## Activation
 
-### Methods to Enable Debug Mode:
+### Methods to Enable Debug Mode (when available):
 
 1. **Keyboard Shortcut**: `Ctrl + Shift + D` (anywhere on the statistics page)
 2. **Debug Button**: Click the 🐛 button in the top-right corner of the statistics page
@@ -17,6 +45,8 @@ The debug mode provides comprehensive testing capabilities for chart rendering a
 1. **Keyboard Shortcut**: `Esc` key (when debug panel is open)
 2. **Close Button**: Click the ✕ button in the debug panel header
 3. **Programmatic**: Call `debugStore.disable()` from code
+
+**Note**: If debug mode is disabled via environment variables, the debug button and keyboard shortcuts will not be available.
 
 ## Features
 
@@ -228,8 +258,9 @@ drillResults.setResults(customResults);
 - Generated data is stored in browser localStorage
 - Large datasets (60+ days with high participation rates) may impact chart rendering performance
 - Clear data regularly during testing to avoid memory bloat
-- Debug mode automatically disabled in production builds
+- Debug mode controlled by environment variables for production safety
 - Business rules ensure realistic data sizes (max 1 result per day/week)
+- When disabled, debug code is not included in production bundles (build-time optimization)
 
 ## Troubleshooting
 
@@ -267,6 +298,25 @@ drillResults.clearResults()
 weeklyTestStore.clearAllResults()
 ```
 
+## Environment Variable Deployment
+
+### Local Development
+```bash
+# Copy example file and modify as needed
+cp .env.example .env
+```
+
+### Netlify Production Deployment
+Environment variables are configured in `netlify.toml`:
+- Production builds automatically disable debug mode
+- Development builds (via Netlify Dev) enable debug mode
+- Can be overridden in Netlify dashboard under Site Settings → Environment Variables
+
+### Manual Override (Netlify Dashboard)
+1. Go to Site Settings → Environment Variables
+2. Add `VITE_DEBUG_MODE_ENABLED=true` to enable debug in production
+3. Redeploy site to apply changes
+
 ## Future Enhancements
 
 Planned extensions for the debug mode:
@@ -276,6 +326,7 @@ Planned extensions for the debug mode:
 3. **Automated Testing**: Generate test suites for different user personas
 4. **Data Export**: Export generated test data for documentation or external analysis
 5. **Real-time Data**: Simulate live data updates for testing reactive features
+6. **Environment-specific Presets**: Different data generation presets per environment
 
 ## Contributing
 
