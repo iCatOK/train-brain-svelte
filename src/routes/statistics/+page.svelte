@@ -873,32 +873,29 @@
   }
 
   .activity-item {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 4rem 1fr 2rem;
+    gap: 12px;
     align-items: center;
     padding: 12px;
     background-color: #f8fafc;
     border-radius: 8px;
-    position: relative;
   }
 
   .date {
     color: #666;
-    flex: 0 0 auto;
+    grid-column: 1;
+    text-align: left;
   }
   .time {
     color: #0ea5e9;
     font-weight: bold;
-    flex: 1;
+    grid-column: 2;
     text-align: center;
   }
   .medal {
     font-size: 1.2em;
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    min-width: 1.5em;
+    grid-column: 3;
     text-align: center;
   }
   .chart-container {
