@@ -163,6 +163,9 @@
   .stroop-test-container {
     text-align: center;
     width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 10px;
   }
 
   .instructions {
@@ -170,14 +173,16 @@
     color: #475569;
     margin-bottom: 20px;
     line-height: 1.5;
+    text-align: left;
   }
 
   .timer-display {
-    font-size: 3.5em;
+    font-size: clamp(2rem, 8vw, 3.5rem);
     font-weight: bold;
     color: #333;
     margin-bottom: 20px;
     line-height: 1.2;
+    word-break: break-all;
   }
 
   .timer-display.finished {
@@ -187,22 +192,34 @@
   .color-grid {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: clamp(3px, 1vw, 8px);
     margin: 20px 0;
     font-weight: bold;
+    overflow-x: auto;
+    padding: 5px;
   }
 
   .color-row {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: clamp(2px, 0.5vw, 5px);
+    min-width: 280px;
   }
 
   .color-cell {
-    flex: 1;
-    padding: 5px;
-    font-size: 1.2rem;
+    padding: clamp(3px, 1vw, 8px);
+    font-size: clamp(0.75rem, 3vw, 1.2rem);
     text-transform: uppercase;
-    background-color: #8ea9c5; /* Light grey background for better contrast */
+    background-color: #8ea9c5;
+    border-radius: 4px;
+    text-align: center;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
   }
 
   .controls {
@@ -216,14 +233,15 @@
   }
 
   .test-button {
-    padding: 12px 24px;
-    font-size: 1.2em;
+    padding: clamp(10px, 2vw, 12px) clamp(16px, 4vw, 24px);
+    font-size: clamp(1rem, 3vw, 1.2rem);
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s;
-    min-width: 120px;
+    min-width: clamp(100px, 25vw, 120px);
+    touch-action: manipulation;
   }
 
   .test-button.start {
@@ -255,8 +273,127 @@
   }
 
   h3 {
-    font-size: 1.75rem;
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
     color: #1e293b;
     margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    .stroop-test-container {
+      padding: 0 5px;
+    }
+    
+    .instructions {
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+    
+    .color-grid {
+      margin: 16px 0;
+      padding: 3px;
+    }
+    
+    .color-row {
+      min-width: 260px;
+      gap: 2px;
+    }
+    
+    .color-cell {
+      min-height: 32px;
+      font-size: clamp(0.7rem, 2.8vw, 1rem);
+    }
+    
+    .controls {
+      margin-top: 20px;
+    }
+    
+    .button-group {
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .button-group .test-button {
+      width: 100%;
+      max-width: 200px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stroop-test-container {
+      padding: 0 3px;
+    }
+    
+    .instructions {
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    
+    .color-grid {
+      margin: 12px 0;
+    }
+    
+    .color-row {
+      min-width: 240px;
+      gap: 1px;
+    }
+    
+    .color-cell {
+      min-height: 28px;
+      padding: 2px;
+      font-size: clamp(0.6rem, 2.5vw, 0.9rem);
+    }
+    
+    .timer-display {
+      margin-bottom: 16px;
+    }
+    
+    .test-button {
+      font-size: 1rem;
+      padding: 10px 16px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .color-row {
+      min-width: 220px;
+    }
+    
+    .color-cell {
+      min-height: 24px;
+      font-size: 0.6rem;
+      padding: 1px 2px;
+    }
+  }
+
+  /* High DPI / Retina Display Support */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .color-cell {
+      text-rendering: optimizeLegibility;
+    }
+  }
+
+  /* Landscape Phone Orientation */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .timer-display {
+      font-size: clamp(1.5rem, 6vw, 2.5rem);
+      margin-bottom: 12px;
+    }
+    
+    .color-grid {
+      margin: 8px 0;
+    }
+    
+    .instructions {
+      font-size: 0.8rem;
+      margin-bottom: 12px;
+    }
+    
+    h3 {
+      font-size: clamp(1.1rem, 4vw, 1.4rem);
+      margin-bottom: 6px;
+    }
   }
 </style>

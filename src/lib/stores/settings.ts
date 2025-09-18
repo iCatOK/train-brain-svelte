@@ -21,6 +21,7 @@
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
 import type { Settings } from '$lib/types';
+import { onboarding } from './onboarding';
 
 const LOCAL_STORAGE_KEY = 'trainBrainSettings';
 
@@ -139,6 +140,12 @@ function createSettingsStore() {
      */
     resetToDefaults: () => {
       set(defaultSettings);
+    },
+    /**
+     * Reset onboarding state for testing purposes
+     */
+    resetOnboarding: () => {
+      onboarding.resetOnboarding();
     }
   };
 }

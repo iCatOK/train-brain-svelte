@@ -13,7 +13,7 @@
   // In a real app, this would come from a larger pool and be randomized.
   const allWords = ["apple", "bicycle", "cloud", "diamond", "elephant", "forest", "guitar", "harbor", "island", "jacket", "kangaroo", "lemon", "mountain", "notebook", "ocean", "pencil", "quarter", "rainbow", "sunshine", "telescope", "umbrella", "village", "waterfall", "xylophone", "yogurt", "zeppelin", "cat", "dog", "house", "tree"];
   let wordsToMemorize = $state<string[]>([]);
-  const wordsToMemorizeCount = 20; // Number of words to show
+  const wordsToMemorizeCount = 30; // Number of words to show
 
   let recalledWords = $state<string[]>([]);
   let currentInputWord = $state('');
@@ -36,7 +36,7 @@
   function startMemorization() {
     selectWords();
     stage = 'memorizing';
-    timeLeft = 10;
+    timeLeft = 120;
     timerInterval = setInterval(() => {
       timeLeft--;
       if (timeLeft <= 0) {

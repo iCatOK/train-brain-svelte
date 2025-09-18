@@ -2,10 +2,12 @@
   import HeroSection from '$lib/components/HeroSection.svelte';
   import NotificationCard from '$lib/components/NotificationCard.svelte';
   import ActionCard from '$lib/components/ActionCard.svelte';
+  import OnboardingModal from '$lib/components/onboarding/OnboardingModal.svelte';
   import { dailyDrillPending } from '$lib/stores/dailyDrill';
   import { formattedDayCounter, dayCounter } from '$lib/stores/dayCounter';
   import { weeklyTestAvailable } from '$lib/stores/weeklyTestAvailability';
   import { drillResults } from '$lib/stores/drillResults';
+  import { onboarding } from '$lib/stores/onboarding';
   import { onMount } from 'svelte';
 
   // Data for the action cards
@@ -48,11 +50,18 @@
     },
   ];
 
+  let showOnboardingModal = false;
+
   onMount(() => {
     // Check daily drill status when component mounts
     dailyDrillPending.checkStatus();
     // Initialize the day counter
     dayCounter.initialize();
+    
+    // Show onboarding modal for first-time users
+    if (onboarding.isFirstTimeUser()) {
+      showOnboardingModal = true;
+    }
   });
 
   // Calculate remaining drills for weekly test
@@ -65,6 +74,11 @@
   function handleRefreshNotification() {
     dailyDrillPending.checkStatus();
   }
+  
+  function handleCompleteOnboarding() {
+    showOnboardingModal = false;
+  }
+  
 </script>
 
 <div class="home-container">
@@ -133,7 +147,12 @@
       {/if}
     {/each}
   </section>
+  
 </div>
+
+{#if showOnboardingModal}
+  <OnboardingModal on:close={handleCompleteOnboarding} />
+{/if}
 
 <style>
   /* Global styles for this page or layout specific styles remain */
@@ -167,4 +186,5 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     width: fit-content;
   }
+  
 </style>
