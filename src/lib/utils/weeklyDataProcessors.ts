@@ -7,7 +7,7 @@ import { WORD_MEMORY_TOTAL_WORDS } from '$lib/constants/statistics';
 /**
  * Derives session data from weekly test results
  */
-export function deriveSessions(data: WeeklyTestData): SessionData[] {
+export function deriveSessions(data: WeeklyTestData, locale?: string): SessionData[] {
   const grouped: Record<string, SessionGroup> = {};
 
   // Process all test types using the generic function
@@ -36,6 +36,7 @@ export function deriveSessions(data: WeeklyTestData): SessionData[] {
     new Date(b).getTime() - new Date(a).getTime()
   );
 
+  const loc = locale || 'en';
   return dates.map(date => {
     const session = grouped[date];
     const counting = session.counting;
@@ -43,15 +44,15 @@ export function deriveSessions(data: WeeklyTestData): SessionData[] {
     const stroop = session.stroop;
 
     const wordAccuracy = word
-      ? `${((word.wordsRecalledCount / WORD_MEMORY_TOTAL_WORDS) * 100).toFixed(1)}%`
+      ? `${((word.wordsRecalledCount / WORD_MEMORY_TOTAL_WORDS) * 100).toFixed(1)} %`
       : 'N/A';
 
     return {
       date,
-      dateStr: formatWeeklyDate(date),
-      countingTime: counting ? `${counting.time} sec` : 'N/A',
+      dateStr: new Intl.DateTimeFormat(loc, { month: 'short', day: 'numeric' }).format(new Date(date)),
+      countingTime: counting ? `${counting.time}` : 'N/A',
       wordAccuracy,
-      stroopTime: stroop ? `${stroop.time} sec` : 'N/A',
+      stroopTime: stroop ? `${stroop.time}` : 'N/A',
       wordAccuracyNum: word ? (word.wordsRecalledCount / WORD_MEMORY_TOTAL_WORDS) * 100 : null,
       countingNum: counting ? counting.time : null,
       stroopNum: stroop ? stroop.time : null

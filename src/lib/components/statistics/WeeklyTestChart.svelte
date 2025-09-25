@@ -5,6 +5,7 @@
   import type { ChartTab } from '$lib/types/Statistics';
   import { CHART_CONFIGS, CHART_CONFIG, WORD_MEMORY_TOTAL_WORDS } from '$lib/constants/statistics';
   import { processChartData } from '$lib/utils/chartHelpers';
+  import { _, locale } from 'svelte-i18n';
 
   export let weeklyData: WeeklyTestData;
   export let activeTab: ChartTab = '1-120';
@@ -15,6 +16,25 @@
 
   let weeklyCanvas: HTMLCanvasElement;
   let weeklyChart: Chart | null = null;
+  let currentLocale = 'en';
+
+  $: locale.subscribe((l: string | null | undefined) => {
+    currentLocale = l || 'en';
+    if (weeklyChart) {
+      cleanupChart();
+      weeklyChart = initializeWeeklyChart();
+      updateWeeklyChart(activeTab, weeklyData);
+    }
+  });
+
+  function formatTimeOrPercent(value: number, tab: ChartTab, locale: string): string {
+    const localeCode = locale === 'en' ? 'en-US' : locale === 'ru' ? 'ru-RU' : 'en-US';
+    if (tab === 'word') {
+      return new Intl.NumberFormat(localeCode, { style: 'percent', minimumFractionDigits: 1 }).format(value / 100);
+    } else {
+      return new Intl.NumberFormat(localeCode, { minimumFractionDigits: 1 }).format(value) + ' ' + $_('statistics.seconds');
+    }
+  }
 
   function handleTabClick(tab: ChartTab) {
     dispatch('tabChange', { tab });
@@ -30,6 +50,7 @@
       type: 'line',
       data: { labels: [], datasets: [] },
       options: {
+        locale: currentLocale === 'en' ? 'en-US' : currentLocale === 'ru' ? 'ru-RU' : 'en-US',
         responsive: true,
         maintainAspectRatio: false,
         layout: {
@@ -40,7 +61,7 @@
             beginAtZero: true,
             title: {
               display: true,
-              text: 'Time (seconds)',
+              text: $_('statistics.timeSeconds'),
               font: { size: CHART_CONFIG.FONT_SIZE, weight: 'bold' }
             },
             grid: { color: CHART_CONFIG.GRID_COLOR }
@@ -48,7 +69,7 @@
           x: {
             title: {
               display: true,
-              text: 'Date',
+              text: $_('statistics.date'),
               font: { size: CHART_CONFIG.FONT_SIZE, weight: 'bold' },
               padding: { bottom: 10 }
             },
@@ -88,22 +109,25 @@
 
       if (tab === '1-120') {
         const result = processChartData(
-          testData as CountingTestResult[], 
-          (result: CountingTestResult) => result.time
+          testData as CountingTestResult[],
+          (result: CountingTestResult) => result.time,
+          currentLocale
         );
         labels = result.labels;
         datasetData = result.data;
       } else if (tab === 'word') {
         const result = processChartData(
-          testData as WordMemoryTestResult[], 
-          (result: WordMemoryTestResult) => (result.wordsRecalledCount / WORD_MEMORY_TOTAL_WORDS) * 100
+          testData as WordMemoryTestResult[],
+          (result: WordMemoryTestResult) => (result.wordsRecalledCount / WORD_MEMORY_TOTAL_WORDS) * 100,
+          currentLocale
         );
         labels = result.labels;
         datasetData = result.data;
       } else if (tab === 'stroop') {
         const result = processChartData(
-          testData as StroopTestResult[], 
-          (result: StroopTestResult) => result.time
+          testData as StroopTestResult[],
+          (result: StroopTestResult) => result.time,
+          currentLocale
         );
         labels = result.labels;
         datasetData = result.data;
@@ -125,9 +149,13 @@
 
       const chartOptions = weeklyChart.options as any;
       const yScale = chartOptions.scales.y;
-      yScale.title.text = config.yLabel;
+      yScale.title.text = tab === 'word' ? $_('statistics.accuracyPercent') : $_('statistics.timeSeconds');
       yScale.max = config.yMax;
       yScale.min = 0;
+
+      chartOptions.plugins.tooltip.callbacks = {
+        label: (context: any) => formatTimeOrPercent(context.parsed.y, tab, currentLocale)
+      };
 
       weeklyChart.update('none');
     } catch (error) {
@@ -163,7 +191,7 @@
       tabindex={activeTab === '1-120' ? 0 : -1}
       class:active={activeTab === '1-120'}
       on:click={() => handleTabClick('1-120')}
-    >1-120 Exercise</button>
+    >{$_('statistics.tab1_120')}</button>
     <button
       role="tab"
       aria-selected={activeTab === 'word'}
@@ -171,7 +199,7 @@
       tabindex={activeTab === 'word' ? 0 : -1}
       class:active={activeTab === 'word'}
       on:click={() => handleTabClick('word')}
-    >Word Memory</button>
+    >{$_('statistics.tabWord')}</button>
     <button
       role="tab"
       aria-selected={activeTab === 'stroop'}
@@ -179,7 +207,7 @@
       tabindex={activeTab === 'stroop' ? 0 : -1}
       class:active={activeTab === 'stroop'}
       on:click={() => handleTabClick('stroop')}
-    >Stroop Test</button>
+    >{$_('statistics.tabStroop')}</button>
   </div>
 
   <div class="weekly-chart-container" id="weekly-chart" role="tabpanel" aria-label="Weekly progress chart">

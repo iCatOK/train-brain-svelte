@@ -1,14 +1,15 @@
 <script lang="ts">
+  import { _ } from 'svelte-i18n';
   import type { RecentActivity } from '$lib/types/Statistics';
 
   export let activities: RecentActivity[];
 </script>
 
 <div class="recent-activities">
-  <h3>Recent Activities</h3>
+  <h3>{$_('statistics.recentActivities')}</h3>
   <div class="activities-list">
     {#if activities.length === 0}
-      <div class="empty-state">No drill results yet. Complete your first drill to see your statistics!</div>
+      <div class="empty-state">{$_('statistics.noDrillResults')}</div>
     {:else}
       {#each activities as activity}
         <div class="activity-item">

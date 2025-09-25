@@ -10,6 +10,7 @@
   import WeeklyTestsTable from '$lib/components/statistics/WeeklyTestsTable.svelte';
   import WeeklyTestChart from '$lib/components/statistics/WeeklyTestChart.svelte';
   import DebugPanel from '$lib/components/debug/DebugPanel.svelte';
+  import { _ } from 'svelte-i18n';
 
   // Handle table sorting
   function handleSort(event: CustomEvent<{ key: SortKey }>) {
@@ -31,7 +32,7 @@
 
 <div class="page-container">
   <div class="stats-card">
-    <h2>Your Statistics</h2>
+    <h2>{$_('statistics.yourStats')}</h2>
     
     <StatisticsOverview stats={$drillStatistics} />
     
@@ -42,7 +43,7 @@
 
   {#if $sortedSessionsStore.length > 0}
     <div class="weekly-stats">
-      <h2>Weekly Test Statistics</h2>
+      <h2>{$_('statistics.weeklyStats')}</h2>
 
       <WeeklyTestsTable 
         sessions={$sortedSessionsStore}

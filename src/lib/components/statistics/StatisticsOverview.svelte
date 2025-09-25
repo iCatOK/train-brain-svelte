@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { _ } from 'svelte-i18n';
   import type { StatsData } from '$lib/types/Statistics';
   import StatisticCard from './StatisticCard.svelte';
 
@@ -7,17 +8,17 @@
 
 <div class="stats-grid">
   <StatisticCard
-    title="Total Drills"
+    title={$_('statistics.totalDrills')}
     value={stats.totalDrills}
   />
-  
+
   <StatisticCard
-    title="Average Time"
+    title={$_('statistics.averageTime')}
     value={stats.averageTime}
   />
-  
+
   <StatisticCard
-    title="Medals Earned"
+    title={$_('statistics.medalsEarned')}
     type="medals"
     medals={stats.medals}
     value=""

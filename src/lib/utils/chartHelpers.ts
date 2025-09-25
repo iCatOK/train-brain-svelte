@@ -8,8 +8,8 @@ import { CHART_COLORS } from '$lib/constants/statistics';
 /**
  * Groups drill results by date and returns daily data
  */
-export function groupResultsByDate(results: DrillResult[]): Record<string, number[]> {
-  return results.reduce((acc, result) => {
+export function groupResultsByDate(results: DrillResult[], locale?: string): Record<string, number[]> | { grouped: Record<string, number[]>, labels: string[], dateMap: Record<string, string> } {
+  const grouped = results.reduce((acc, result) => {
     const date = formatDate(result.date);
     if (!acc[date]) {
       acc[date] = [];
@@ -17,24 +17,50 @@ export function groupResultsByDate(results: DrillResult[]): Record<string, numbe
     acc[date].push(result.timeInSeconds);
     return acc;
   }, {} as Record<string, number[]>);
+
+  if (locale) {
+    const loc = locale || 'en';
+    const sortedDates = Object.keys(grouped).sort();
+    const labels = sortedDates.map(dateStr => new Intl.DateTimeFormat(loc, { month: 'short', day: 'numeric' }).format(new Date(dateStr)));
+    const dateMap = Object.fromEntries(labels.map((label, i) => [label, sortedDates[i]]));
+    return { grouped, labels, dateMap };
+  }
+
+  return grouped;
 }
 
 /**
  * Creates chart dataset from daily data
  */
-export function createChartDataset(dailyData: Record<string, number[]>, labels: string[]) {
+export function createChartDataset(dailyData: Record<string, number[]> | { grouped: Record<string, number[]>, labels: string[], dateMap: Record<string, string> }) {
+  let data: Record<string, number[]>;
+  let labels: string[];
+  let dateMap: Record<string, string> | undefined;
+
+  if ((dailyData as any).grouped) {
+    data = (dailyData as any).grouped;
+    labels = (dailyData as any).labels;
+    dateMap = (dailyData as any).dateMap;
+  } else {
+    data = dailyData as Record<string, number[]>;
+    labels = Object.keys(data).sort();
+  }
+
   // Collect all data points with their colors
-  const allData: ChartPoint[] = labels.map(date => {
-    const times = dailyData[date];
+  const allData: ChartPoint[] = labels.map(label => {
+    const dateKey = dateMap ? dateMap[label] : label;
+    const times = data[dateKey];
     return times.map(time => ({
-      x: date,
+      x: label,
       y: time,
       color: getChartColor(time)
     }));
   }).flat();
 
-  // Sort all data by date to ensure chronological order
-  allData.sort((a, b) => new Date(a.x).getTime() - new Date(b.x).getTime());
+  // Sort all data by date if not already sorted
+  if (!dateMap) {
+    allData.sort((a, b) => new Date(a.x).getTime() - new Date(b.x).getTime());
+  }
 
   // Create a single dataset with all points
   return [{
@@ -74,15 +100,17 @@ export function groupTestResultsByDate<T extends { date: string }>(results: T[])
  */
 export function processChartData<T extends { date: string }>(
   results: T[],
-  valueExtractor: (result: T) => number
+  valueExtractor: (result: T) => number,
+  locale?: string
 ): ProcessedChartData {
   const grouped = groupTestResultsByDate(results);
 
   const sortedResults = Object.values(grouped)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
+  const loc = locale || 'en';
   return {
-    labels: sortedResults.map(r => formatWeeklyDate(r.date)),
+    labels: sortedResults.map(r => new Intl.DateTimeFormat(loc, { month: 'short', day: 'numeric' }).format(new Date(r.date))),
     data: sortedResults.map(valueExtractor)
   };
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import type { SessionData, SortKey, SortDirection } from '$lib/types/Statistics';
+  import { _, locale } from 'svelte-i18n';
 
   export let sessions: SessionData[];
   export let sortKey: SortKey = 'date';
@@ -30,25 +31,25 @@
           on:click={() => handleSort('date')}
           aria-sort={getSortAriaLabel('date')}
         >
-          Date
+          { $_('statistics.date') }
         </th>
         <th
           on:click={() => handleSort('counting')}
           aria-sort={getSortAriaLabel('counting')}
         >
-          1-120 Time (sec)
+          { $_('statistics.table_120') }
         </th>
         <th
           on:click={() => handleSort('word')}
           aria-sort={getSortAriaLabel('word')}
         >
-          Word Memory Accuracy (%)
+           { $_('statistics.tableWord') }
         </th>
         <th
           on:click={() => handleSort('stroop')}
           aria-sort={getSortAriaLabel('stroop')}
         >
-          Stroop Time (sec)
+           { $_('statistics.tableStroop') }
         </th>
       </tr>
     </thead>

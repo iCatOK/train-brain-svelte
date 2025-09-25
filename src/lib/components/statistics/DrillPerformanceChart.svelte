@@ -6,11 +6,22 @@
   import { groupResultsByDate, createChartDataset } from '$lib/utils/chartHelpers';
   import { getMedalForTime } from '$lib/utils/statisticsCalculators';
   import { formatTime } from '$lib/utils/dateFormatters';
+  import { _, locale } from 'svelte-i18n';
 
   export let results: DrillResult[];
 
   let chartCanvas: HTMLCanvasElement;
   let chart: Chart;
+  let currentLocale = 'en';
+
+  $: if ($locale !== currentLocale) {
+    currentLocale = $locale || 'en';
+    if (chart) {
+      cleanupChart();
+      chart = initializeDrillChart();
+      updateChart(results);
+    }
+  }
 
   /**
    * Creates and configures the drill results line chart
@@ -20,6 +31,7 @@
       type: 'line',
       data: { datasets: [] },
       options: {
+        locale: currentLocale === 'en' ? 'en-US' : 'ru-RU',
         responsive: true,
         maintainAspectRatio: false,
         layout: {
@@ -30,7 +42,7 @@
             beginAtZero: true,
             title: {
               display: true,
-              text: 'Time (seconds)',
+              text: $_('statistics.timeSeconds'),
               font: { size: CHART_CONFIG.FONT_SIZE, weight: 'bold' }
             },
             grid: { color: CHART_CONFIG.GRID_COLOR },
@@ -42,7 +54,7 @@
             type: 'category',
             title: {
               display: true,
-              text: 'Date',
+              text: $_('statistics.date'),
               font: { size: 14, weight: 'bold' },
               padding: { bottom: 10 }
             },
@@ -59,21 +71,21 @@
               generateLabels: (chart) => {
                 return [
                   {
-                    text: 'Gold (≤30s)',
+                    text: $_('statistics.gold'),
                     fillStyle: CHART_COLORS.GOLD,
                     strokeStyle: CHART_COLORS.GOLD,
                     pointStyle: 'circle',
                     datasetIndex: 0
                   },
                   {
-                    text: 'Silver (≤60s)',
+                    text: $_('statistics.silver'),
                     fillStyle: CHART_COLORS.SILVER,
                     strokeStyle: CHART_COLORS.SILVER,
                     pointStyle: 'circle',
                     datasetIndex: 0
                   },
                   {
-                    text: 'Bronze (≤90s)',
+                    text: $_('statistics.bronze'),
                     fillStyle: CHART_COLORS.BRONZE,
                     strokeStyle: CHART_COLORS.BRONZE,
                     pointStyle: 'circle',
@@ -100,7 +112,7 @@
                 const medalEmoji = medal === 'gold' ? ' 🥇' :
                                  medal === 'silver' ? ' 🥈' :
                                  medal === 'bronze' ? ' 🥉' : '';
-                return `Time: ${formatTime(seconds)}${medalEmoji}`;
+                return `${$_('statistics.tooltipTime', { values: { time: formatTime(seconds) } })}${medalEmoji}`;
               }
             }
           }
@@ -116,12 +128,12 @@
     if (!chart || !results) return;
 
     try {
-      const dailyData = groupResultsByDate(results);
-      const labels = Object.keys(dailyData).sort((a, b) =>
+      const dailyData = groupResultsByDate(results, currentLocale);
+      const labels = (dailyData as any).labels || Object.keys(dailyData as Record<string, number[]>).sort((a, b) =>
         new Date(a).getTime() - new Date(b).getTime()
       );
 
-      const datasets = createChartDataset(dailyData, labels);
+      const datasets = createChartDataset(dailyData);
 
       chart.data.labels = labels;
       (chart.data.datasets as any) = datasets;
@@ -152,7 +164,7 @@
 </script>
 
 <div class="chart-container">
-  <h3>Daily Performance</h3>
+  <h3>{$_('statistics.dailyPerformance')}</h3>
   <canvas bind:this={chartCanvas}></canvas>
 </div>
 
