@@ -9,50 +9,15 @@
   import { drillResults } from '$lib/stores/drillResults';
   import { onboarding } from '$lib/stores/onboarding';
   import { onMount } from 'svelte';
-
-  // Data for the action cards
-  const actionCardsData = [
-    {
-      icon: '➕', // Or use your Icon component: name: 'math'
-      iconClass: 'math-icon',
-      title: 'Math Drill',
-      subtitle: 'Test your math skills with timed problems',
-      description: 'Solve a series of addition, subtraction, and multiplication problems as quickly as you can.',
-      buttonText: 'Start Drill',
-      targetRoute: '/drill', // Target route for navigation
-    },
-    {
-      icon: '📊',
-      iconClass: 'stats-icon',
-      title: 'Statistics',
-      subtitle: 'View your performance over time',
-      description: 'Track your progress with detailed charts and see how your math skills improve.',
-      buttonText: 'View Statistics',
-      targetRoute: '/statistics', // Example route
-    },
-    {
-      icon: '⚙️',
-      iconClass: 'settings-icon',
-      title: 'Settings',
-      subtitle: 'Customize your experience',
-      description: 'Configure the number of problems and other preferences for your math drills.',
-      buttonText: 'View Settings',
-      targetRoute: '/settings', // Example route
-    },
-    {
-      icon: '📝',
-      iconClass: 'weekly-test-icon',
-      title: 'Weekly Tests',
-      subtitle: 'Challenge yourself with weekly assessments',
-      description: 'Take weekly tests to track your long-term progress and identify areas for improvement.',
-      buttonText: 'Start Weekly Test',
-      targetRoute: '/weekly-test',
-    },
-  ];
+  import { _, waitLocale } from 'svelte-i18n';
 
   let showOnboardingModal = false;
+  let ready = true; // i18n initialized in layout
 
-  onMount(() => {
+  onMount(async () => {
+    // Safety check for client-side locale readiness
+    await waitLocale();
+    
     // Check daily drill status when component mounts
     dailyDrillPending.checkStatus();
     // Initialize the day counter
@@ -64,11 +29,50 @@
     }
   });
 
+  // Data for the action cards (i18n now available via layout init)
+  const actionCardsData = [
+    {
+      icon: '➕', // Or use your Icon component: name: 'math'
+      iconClass: 'math-icon',
+      title: $_('mathDrill.title'),
+      subtitle: $_('mathDrill.description'),
+      description: $_('mathDrill.detailedDescription'),
+      buttonText: $_('mathDrill.startButton'),
+      targetRoute: '/drill', // Target route for navigation
+    },
+    {
+      icon: '📊',
+      iconClass: 'stats-icon',
+      title: $_('statistics.title'),
+      subtitle: $_('statistics.description'),
+      description: $_('statistics.detailedDescription'),
+      buttonText: $_('statistics.viewButton'),
+      targetRoute: '/statistics', // Example route
+    },
+    {
+      icon: '⚙️',
+      iconClass: 'settings-icon',
+      title: $_('settings.title'),
+      subtitle: $_('settings.description'),
+      description: $_('settings.detailedDescription'),
+      buttonText: $_('settings.viewButton'),
+      targetRoute: '/settings', // Example route
+    },
+    {
+      icon: '📝',
+      iconClass: 'weekly-test-icon',
+      title: $_('weeklyTests.title'),
+      subtitle: $_('weeklyTests.description'),
+      description: $_('weeklyTests.detailedDescription'),
+      buttonText: $_('weeklyTests.completeButton'), // Overridden dynamically in template
+      targetRoute: '/weekly-test',
+    },
+  ];
+
   // Calculate remaining drills for weekly test
   $: remainingDrills = $drillResults.length > 0 ? 7 - ($drillResults.length % 7) : 7;
-  $: weeklyButtonText = remainingDrills === 1 ? "Complete 1 drill" : `Complete ${remainingDrills} drills`;
   $: completedDrillsForNotification = $drillResults.length;
-  $: notificationMessage = `You've completed ${completedDrillsForNotification} drills! Take your weekly test to track your progress.`;
+  $: notificationMessage = $_('weeklyTestAvailable.subtitle', { values: { count: completedDrillsForNotification } });
 
   // If you needed to refresh the pending status from this page
   function handleRefreshNotification() {
@@ -78,19 +82,18 @@
   function handleCompleteOnboarding() {
     showOnboardingModal = false;
   }
-  
 </script>
 
 <div class="home-container">
   <HeroSection
-    title="Train Brain Game"
-    subtitle="Sharpen your math skills with daily problems in Train Brain Game"
+    title={$_('heading.title')}
+    subtitle={$_('heading.subtitle')}
   />
   <div class="day-counter">{$formattedDayCounter}</div>
   {#if $weeklyTestAvailable}
     <NotificationCard
       icon="📝"
-      title="Weekly Test Available!"
+      title={$_('weeklyTestAvailable.title')}
       message={notificationMessage}
       refreshIcon=""
       variant="success"
@@ -98,10 +101,10 @@
   {:else}
     <NotificationCard
       icon={$dailyDrillPending ? "⚠️" : "✅"}
-      title={$dailyDrillPending ? "Daily Drill Pending" : "Daily Drill Completed"}
+      title={$dailyDrillPending ? $_('dailyDrillPending.title') : $_('dailyDrillCompleted.title')}
       message={$dailyDrillPending
-        ? "You haven't completed your math drill for today yet."
-        : "Great job! You've completed your daily drill. Come back tomorrow for a new challenge!"}
+        ? $_('dailyDrillPending.subtitle')
+        : $_('dailyDrillCompleted.subtitle')}
       refreshIcon="🔄"
       variant={$dailyDrillPending ? "warning" : "success"}
       on:refresh={handleRefreshNotification}
@@ -110,10 +113,10 @@
 
   <section class="action-cards-grid">
     {#each actionCardsData as card}
-      {#if card.title === 'Math Drill'}
+      {#if card.title === $_('mathDrill.title')}
         <ActionCard
           {...card}
-          buttonText={$dailyDrillPending ? card.buttonText : "Completed today"}
+          buttonText={$dailyDrillPending ? card.buttonText : $_('mathDrill.completedToday')}
           disabled={!$dailyDrillPending}
           icon={card.icon}
           iconClass={card.iconClass}
@@ -122,10 +125,10 @@
           description={card.description}
           targetRoute={card.targetRoute}
         />
-      {:else if card.title === 'Weekly Tests'}
+      {:else if card.title === $_('weeklyTests.title')}
         <ActionCard
           {...card}
-          buttonText={$weeklyTestAvailable ? card.buttonText : weeklyButtonText}
+          buttonText={$weeklyTestAvailable ? card.buttonText : $_('weeklyTests.completeButtonDisabled', { values: { count: remainingDrills }})}
           disabled={!$weeklyTestAvailable}
           icon={card.icon}
           iconClass={card.iconClass}

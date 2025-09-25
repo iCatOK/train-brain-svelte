@@ -1,6 +1,9 @@
 <script lang="ts">
   import '../app.css'; // Your global styles
-  import { page } from '$app/state'; // Modern way to access page state
+  import { page } from '$app/stores';
+  import { addMessages } from 'svelte-i18n';
+  import { initI18n } from '$lib/i18n';
+  import { _ } from 'svelte-i18n';
 
   // Simple icons (replace with SVGs or an icon library for better visuals)
   const IconBrain = '🧠';
@@ -10,16 +13,20 @@
 
   // Helper function to check if link is active
   function isActive(path: string): boolean {
-    return page.url.pathname === path;
+    return $page.url.pathname === path;
   }
 
+  // Initialize i18n using server-loaded data (runs on SSR and client)
+  initI18n($page.data.locale);
+  addMessages('en', $page.data.messages.en);
+  addMessages('ru', $page.data.messages.ru);
 </script>
 
 <div class="app-container">
   <header class="app-header">
     <a href="/" class="logo-link">
       <span class="logo-icon">{IconBrain}</span>
-      <span class="logo-text">Train Brain Game</span>
+      <span class="logo-text">{$_('header.logo')}</span>
     </a>
     <nav class="main-nav">
       <a 
@@ -28,7 +35,7 @@
         class:active={isActive('/statistics')}
       >
         <span class="nav-icon">{IconChart}</span>
-        <span>Statistics</span>
+        <span>{$_('header.statisticsNav')}</span>
       </a>
       <a 
         href="/settings" 
@@ -36,7 +43,7 @@
         class:active={isActive('/settings')}
       >
         <span class="nav-icon">{IconSettings}</span>
-        <span>Settings</span>
+        <span>{$_('header.settingsNav')}</span>
       </a>
     </nav>
   </header>

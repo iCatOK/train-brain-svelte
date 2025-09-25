@@ -1,0 +1,52 @@
+{
+  "header": {
+    "logo": "Train Brain",
+    "statisticsNav": "Statistics",
+    "settingsNav": "Settings"
+  },
+  "heading": {
+    "title": "Train Brain Game",
+    "subtitle": "Sharpen your math skills with daily problems in Train Brain Game"
+  },
+  "journey": {
+    "day": "Day {number} of your math journey"
+  },
+  "mathDrill": {
+    "title": "Math Drill",
+    "description": "Test your math skills with timed problems",
+    "detailedDescription": "Solve a series of addition, subtraction, and multiplication problems as quickly as you can.",
+    "startButton": "Start Drill",
+    "completedToday": "Completed today"
+  },
+  "statistics": {
+    "title": "Statistics",
+    "description": "View your performance over time",
+    "detailedDescription": "Track your progress with detailed charts and see how your math skills improve.",
+    "viewButton": "View Statistics"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Customize your experience",
+    "detailedDescription": "Configure the number of problems and other preferences for your math drills.",
+    "viewButton": "View Settings"
+  },
+  "weeklyTests": {
+    "title": "Weekly Tests",
+    "description": "Challenge yourself with weekly assessments",
+    "detailedDescription": "Take weekly tests to track your long-term progress and identify areas for improvement.",
+    "completeButton": "Начать тестирование",
+    "completeButtonDisabled": "{count, plural, one {Complete 1 drill} other {Complete # drills}}"
+  },
+  "weeklyTestAvailable": {
+    "title": "Weekly test available!",
+    "subtitle": "You've completed {count, plural, one {# drill} other {# drills}}! Take your weekly test to track your progress."
+  },
+  "dailyDrillPending": {
+    "title": "Daily Drill Pending",
+    "subtitle": "You haven't completed your math drill for today yet."
+  },
+  "dailyDrillCompleted": {
+    "title": "Daily Drill Completed!",
+    "subtitle": "Great job! You've completed your daily drill. Come back tomorrow for a new challenge!"
+  }
+}

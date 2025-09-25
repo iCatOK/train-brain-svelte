@@ -7,6 +7,22 @@
   import ResetOnboarding from '$lib/components/settings/ResetOnboarding.svelte';
   import ConfirmationDialog from '$lib/components/settings/ConfirmationDialog.svelte';
 
+  import { locale } from 'svelte-i18n';
+
+  // available languages
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ru', label: 'Русский' }
+  ];
+
+  let currentLocale: string | null | undefined;
+  $: locale.subscribe(l => currentLocale = l);
+
+  function changeLanguage(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    locale.set(value); // updates globally & persists via i18n.ts
+  }
+  
   let tempCount = $settings.dailyProblemsCount;
   let errorMessage = ""
   let showResetConfirm = false;
@@ -102,6 +118,14 @@
     {/if}
     
     <div class="settings-form">
+      <div class="language-selector">
+        <label for="language">Language:</label>
+        <select id="language" on:change={changeLanguage} bind:value={currentLocale}>
+          {#each languages as lang}
+            <option value={lang.code}>{lang.label}</option>
+          {/each}
+        </select>
+      </div>
       <DailyProblemsForm bind:tempCount errorMessage={errorMessage} onSave={handleSave} />
       <ResetOnboarding onResetTrigger={handleOnboardingReset} />
       <ResetProgress onResetTrigger={handleResetProgress} />
@@ -233,4 +257,28 @@
   .confirm-reset-button:hover {
     background-color: #0284c7;
   }
+
+  .language-selector label {
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .language-selector {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.language-selector label {
+  font-weight: 500;
+  color: #333;
+}
+
+.language-selector select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
 </style>

@@ -1,6 +1,7 @@
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import { dailyDrillPending } from './dailyDrill';
+import { _ } from 'svelte-i18n'; // Add this import
 
 function createDayCounterStore() {
   // Initialize the store with a default value of 1 (Day 1)
@@ -101,6 +102,6 @@ export const dayCounter = createDayCounterStore();
 
 // Create a formatted day counter for display
 export const formattedDayCounter = derived(
-  dayCounter,
-  $dayCounter => `Day ${$dayCounter} of your math journey`
+  [dayCounter, _],
+  ([$dayCounter, $locale]) => $locale('journey.day',  { values: { number: $dayCounter } })
 );
