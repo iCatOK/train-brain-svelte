@@ -18,14 +18,12 @@
   let weeklyChart: Chart | null = null;
   let currentLocale = 'en';
 
-  $: locale.subscribe((l: string | null | undefined) => {
-    currentLocale = l || 'en';
-    if (weeklyChart) {
-      cleanupChart();
-      weeklyChart = initializeWeeklyChart();
-      updateWeeklyChart(activeTab, weeklyData);
-    }
-  });
+  $: if ($locale, weeklyChart) {
+    currentLocale = $locale || 'en';
+    cleanupChart();
+    weeklyChart = initializeWeeklyChart();
+    updateWeeklyChart(activeTab, weeklyData);
+  }
 
   function formatTimeOrPercent(value: number, tab: ChartTab, locale: string): string {
     const localeCode = locale === 'en' ? 'en-US' : locale === 'ru' ? 'ru-RU' : 'en-US';
