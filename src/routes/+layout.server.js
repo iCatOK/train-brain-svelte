@@ -1,7 +1,7 @@
 import en from '$lib/i18n/locales/en/home.json' assert { type: 'json' };
 import ru from '$lib/i18n/locales/ru/home.json' assert { type: 'json' };
 
-const DEFAULT_LOCALE = 'en';
+const DEFAULT_LOCALE = 'ru';
 
 export const load = ({ cookies }) => {
   let locale = cookies.get('locale') || DEFAULT_LOCALE;
