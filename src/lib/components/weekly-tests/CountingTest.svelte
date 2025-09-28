@@ -1,6 +1,7 @@
 <script lang="ts">
   import { weeklyTestStore } from '$lib/stores/weeklyTestResults';
   import { createEventDispatcher } from 'svelte';
+  import { t } from '$lib/i18n';
 
   const dispatch = createEventDispatcher<{ testCompleted: 'counting' }>();
 
@@ -78,12 +79,12 @@
 </script>
 
 <div class="counting-test-container">
-  <h3>Counting test</h3>
+  <h3>{$t('countingTest.title')}</h3>
   <p class="instructions">
-    Time how long it takes you to say the numbers from 1 to 120 out loud as quickly as possible.
+    {$t('countingTest.description')}
   </p>
   {#if testStage === 'finished'}
-    <p class="instructions">Enter the amount of time in seconds.</p>
+    <p class="instructions">{$t('countingTest.finishedText')}</p>
   {/if}
 
   <div class="timer-display" class:finished={testStage === 'finished'}>
@@ -96,11 +97,11 @@
 
   <div class="controls">
     {#if testStage === 'initial'}
-      <button class="test-button start" onclick={startTest}>Start</button>
+      <button class="test-button start" onclick={startTest}>{$t('countingTest.start')}</button>
     {:else if testStage === 'running'}
-      <button class="test-button stop" onclick={stopTest}>Stop</button>
+      <button class="test-button stop" onclick={stopTest}>{$t('countingTest.stop')}</button>
     {:else if testStage === 'finished'}
-      <button class="test-button next" onclick={nextTest}>Next</button>
+      <button class="test-button next" onclick={nextTest}>{$t('countingTest.next')}</button>
     {/if}
   </div>
 </div>

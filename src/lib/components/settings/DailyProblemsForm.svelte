@@ -2,10 +2,11 @@
   export let tempCount: number;
   export let errorMessage: string;
   export let onSave: () => void;
+  import { t } from '$lib/i18n';
 </script>
 
 <div class="setting-item">
-  <label for="problemCount">Number of Daily Problems</label>
+  <label for="problemCount">{$t('settingsPage.dailyProblems.label')}</label>
   <input
     type="number"
     id="problemCount"
@@ -14,7 +15,7 @@
     max="100"
     class:error={errorMessage}
   />
-  <span class="help-text">Choose between 10 and 100 problems</span>
+  <span class="help-text">{$t('settingsPage.dailyProblems.helpText')}</span>
   {#if errorMessage}
     <span class="error-message">{errorMessage}</span>
   {/if}
@@ -22,13 +23,15 @@
 <button
   class="save-button"
   on:click={onSave}
-  disabled={errorMessage !== ""}>Save Changes</button>
+  disabled={errorMessage !== ""}>{$t('settingsPage.dailyProblems.saveButton')}</button>
 
 <style>
   .setting-item {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 24px;
   }
 
   label {

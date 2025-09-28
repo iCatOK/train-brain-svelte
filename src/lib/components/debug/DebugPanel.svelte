@@ -143,8 +143,8 @@
       <div class="preset-section">
         <h3>Quick Presets</h3>
         <div class="preset-grid">
-          <button class="preset-btn beginner" onclick={() => generateDrillData('beginner')}>
-            🌱 Beginner<br><small>14 days, 40% active</small>
+          <button class="preset-btn beginner" onclick={() => generateDrillData('oneWeek')}>
+            🌱 Week<br><small>7 days, 100% active</small>
           </button>
           <button class="preset-btn intermediate" onclick={() => generateDrillData('intermediate')}>
             ⚡ Intermediate<br><small>30 days, 70% active</small>

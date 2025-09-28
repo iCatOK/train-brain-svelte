@@ -1,24 +1,25 @@
 <script lang="ts">
   import type { DrillState } from '$lib/stores/drillStore';
+  import { t } from "$lib/i18n"
 
   export let drillState: DrillState;
   export let onGoHome: () => void;
 </script>
 
 <div class="results-area">
-  <h2>🎉 Congrats! 🎉</h2>
-  <p>Your time: <strong>{drillState.formattedTime}</strong></p>
+  <h2>{$t('dailyDrillPage.resultsTitle')}</h2>
+  <p>{$t('dailyDrillPage.resultsYourTime')} <strong>{drillState.formattedTime}</strong></p>
   <p>
-    Medal:
+    {$t('dailyDrillPage.resultsMedal')}
     <span class="medal medal-{drillState.awardedMedal}">
-      {#if drillState.awardedMedal === 'gold'}🥇 Gold{/if}
-      {#if drillState.awardedMedal === 'silver'}🥈 Silver{/if}
-      {#if drillState.awardedMedal === 'bronze'}🥉 Bronze{/if}
-      {#if drillState.awardedMedal === 'none'}No Medal{/if}
+      {#if drillState.awardedMedal === 'gold'}{$t('dailyDrillPage.resultsGold')}{/if}
+      {#if drillState.awardedMedal === 'silver'}{$t('dailyDrillPage.resultsSilver')}{/if}
+      {#if drillState.awardedMedal === 'bronze'}{$t('dailyDrillPage.resultsBronze')}{/if}
+      {#if drillState.awardedMedal === 'none'}{$t('dailyDrillPage.resultsNoMedal')}{/if}
     </span>
   </p>
   <div class="results-actions">
-    <button on:click={() => onGoHome()}>Go Home</button>
+    <button on:click={() => onGoHome()}>{$t('dailyDrillPage.resultsGoHome')}</button>
   </div>
 </div>
 

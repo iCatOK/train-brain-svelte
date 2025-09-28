@@ -215,6 +215,12 @@ function createDebugStore() {
     
     // Generator presets
     presets: {
+      oneWeek:{
+        days: 7,
+        participationRate: 1, // full week streak
+        pattern: 'improving' as const,
+        medalDistribution: { gold: 0.05, silver: 0.15, bronze: 0.4, none: 0.4 }
+      },
       beginner: {
         days: 14,
         participationRate: 0.4, // 40% - inconsistent, just starting

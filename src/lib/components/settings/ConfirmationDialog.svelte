@@ -3,16 +3,17 @@
   export let onConfirm: () => void;
   export let onCancel: () => void;
   export let handleKeydown: (event: KeyboardEvent) => void;
+  import { t } from '$lib/i18n';
 </script>
 
 {#if showResetConfirm}
   <div class="confirm-dialog-overlay" on:click={onCancel} role="button" tabindex="0" on:keydown={handleKeydown}>
     <div class="confirm-dialog" on:click|stopPropagation on:keydown|stopPropagation={handleKeydown} role="button" tabindex="0">
-      <h3>Confirm Reset</h3>
-      <p>Are you sure you want to reset all your progress? This will permanently delete all drill results, weekly test data, and reset your day counter to Day 1.</p>
+      <h3>{$t('settingsPage.resetConfirm.title')}</h3>
+      <p>{$t('settingsPage.resetConfirm.message')}</p>
       <div class="confirm-buttons">
-        <button class="cancel-button" on:click={onCancel}>Cancel</button>
-        <button class="confirm-reset-button" on:click={onConfirm}>Yes, Reset Everything</button>
+        <button class="cancel-button" on:click={onCancel}>{$t('settingsPage.resetConfirm.buttons.cancel')}</button>
+        <button class="confirm-reset-button" on:click={onConfirm}>{$t('settingsPage.resetConfirm.buttons.confirm')}</button>
       </div>
     </div>
   </div>

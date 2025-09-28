@@ -3,6 +3,7 @@
   import type { Problem } from '$lib/types';
   import { onDestroy } from 'svelte';
   import { drillStore } from '$lib/stores/drillStore';
+  import { t } from "$lib/i18n"
 
   export let drillState: DrillState;
   export let currentProblemDisplay: Problem | null;
@@ -41,7 +42,7 @@
   <div class="stopwatch">{drillState.formattedTime}</div>
 </div>
 <div class="progress-indicator">
-  Problem {drillState.currentProblemIndex + 1} of {drillState.problems.length}
+ {$t('dailyDrillPage.problemTitle', { values: { current: drillState.currentProblemIndex + 1, total: drillState.problems.length } })}
 </div>
 <div class="problem-area">
   {currentProblemDisplay?.problem} = ?
@@ -51,7 +52,7 @@
     type="number"
     bind:value={localUserAnswer}
     bind:this={answerInput}
-    placeholder="Enter your answer"
+    placeholder={$t('dailyDrillPage.answerPlaceholder')}
     aria-label="Your answer"
     aria-invalid={drillState.inputError}
     aria-describedby={drillState.inputError ? "error-desc" : undefined}
@@ -59,10 +60,10 @@
     on:input={handleInput}
     class:error={drillState.inputError}
   />
-  <button type="submit">Submit</button>
+  <button type="submit">{$t('dailyDrillPage.submit')}</button>
 
   {#if drillState.inputError}
-    <div class="error-message" id="error-desc" role="alert">Incorrect answer. Please try again.</div>
+    <div class="error-message" id="error-desc" role="alert">{$t('dailyDrillPage.incorrectAnswer')}</div>
   {/if}
 </form>
 
