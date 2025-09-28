@@ -1,47 +1,47 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
+  
   // Screen 7: Progress Tracking
   // Content from introduction_screens.md lines 88-91
   
   // Sample data for demonstration charts
-  const weeklyData = [
-    { week: 'Week 1', counting: 45, memory: 12, stroop: 38 },
-    { week: 'Week 2', counting: 42, memory: 15, stroop: 35 },
-    { week: 'Week 3', counting: 40, memory: 18, stroop: 32 },
-    { week: 'Week 4', counting: 38, memory: 21, stroop: 29 }
+  $: weeklyData = [
+    { week: $t('onboarding.progressScreen.consistency.weeks.week1'), counting: 45, memory: 12, stroop: 38 },
+    { week: $t('onboarding.progressScreen.consistency.weeks.week2'), counting: 42, memory: 15, stroop: 35 },
+    { week: $t('onboarding.progressScreen.consistency.weeks.week3'), counting: 40, memory: 18, stroop: 32 },
+    { week: $t('onboarding.progressScreen.consistency.weeks.week4'), counting: 38, memory: 21, stroop: 29 }
   ];
   
-  const dailyTimes = [
-    { day: 'Mon', time: 2.3 },
-    { day: 'Tue', time: 2.1 },
-    { day: 'Wed', time: 1.9 },
-    { day: 'Thu', time: 1.8 },
-    { day: 'Fri', time: 1.7 },
-    { day: 'Sat', time: 1.6 },
-    { day: 'Sun', time: 1.5 }
+  $: dailyTimes = [
+    { day: $t('onboarding.progressScreen.consistency.dailyTimes.mon'), time: 2.3 },
+    { day: $t('onboarding.progressScreen.consistency.dailyTimes.tue'), time: 2.1 },
+    { day: $t('onboarding.progressScreen.consistency.dailyTimes.wed'), time: 1.9 },
+    { day: $t('onboarding.progressScreen.consistency.dailyTimes.thu'), time: 1.8 },
+    { day: $t('onboarding.progressScreen.consistency.dailyTimes.fri'), time: 1.7 },
+    { day: $t('onboarding.progressScreen.consistency.dailyTimes.sat'), time: 1.6 },
+    { day: $t('onboarding.progressScreen.consistency.dailyTimes.sun'), time: 1.5 }
   ];
 </script>
 
 <div class="progress-screen">
   <div class="screen-icon">📈</div>
   
-  <h1 class="screen-title">Track Your Progress and Achievements</h1>
+  <h1 class="screen-title">{$t('onboarding.progressScreen.title')}</h1>
   
   <div class="content">
     <div class="progress-overview">
       <p class="intro-text">
-        The application will save <strong>daily results of arithmetic tasks (time spent)</strong> and 
-        <strong>weekly results of all tests</strong>. Progress will be displayed with visual graphs 
-        to help you track your improvement over time.
+        {$t('onboarding.progressScreen.intro1')} <strong>{$t('onboarding.progressScreen.strong1')}</strong>{$t('onboarding.progressScreen.intro2')} <strong>{$t('onboarding.progressScreen.strong2')}</strong>{$t('onboarding.progressScreen.intro3')}
       </p>
       
       <div class="tracking-features">
         <div class="feature-card daily-tracking">
           <div class="feature-header">
             <span class="feature-icon">📝</span>
-            <h3>Daily Arithmetic Results</h3>
+            <h3>{$t('onboarding.progressScreen.daily.title')}</h3>
           </div>
           <p class="feature-description">
-            Track completion time for each daily math session
+            {$t('onboarding.progressScreen.daily.description')}
           </p>
           <div class="feature-example">
             <div class="daily-chart">
@@ -53,24 +53,24 @@
                 </div>
               {/each}
             </div>
-            <p class="chart-caption">Daily completion times getting faster!</p>
+            <p class="chart-caption">{$t('onboarding.progressScreen.daily.caption')}</p>
           </div>
         </div>
         
         <div class="feature-card weekly-tracking">
           <div class="feature-header">
             <span class="feature-icon">📊</span>
-            <h3>Weekly Test Results</h3>
+            <h3>{$t('onboarding.progressScreen.weekly.title')}</h3>
           </div>
           <p class="feature-description">
-            Monitor performance across all three cognitive tests
+            {$t('onboarding.progressScreen.weekly.description')}
           </p>
           <div class="feature-example">
             <div class="weekly-chart">
               <div class="chart-legend">
-                <span class="legend-item counting">● Counting (sec)</span>
-                <span class="legend-item memory">● Memory (words)</span>
-                <span class="legend-item stroop">● Stroop (sec)</span>
+                <span class="legend-item counting">{$t('onboarding.progressScreen.weekly.legend.counting')}</span>
+                <span class="legend-item memory">{$t('onboarding.progressScreen.weekly.legend.memory')}</span>
+                <span class="legend-item stroop">{$t('onboarding.progressScreen.weekly.legend.stroop')}</span>
               </div>
               <div class="chart-container">
                 <svg class="chart-svg" viewBox="0 0 320 120" preserveAspectRatio="xMidYMid meet">
@@ -199,7 +199,7 @@
                 </svg>
               </div>
             </div>
-            <p class="chart-caption">Weekly improvements across all tests</p>
+            <p class="chart-caption">{$t('onboarding.progressScreen.weekly.caption')}</p>
           </div>
         </div>
       </div>
@@ -207,7 +207,7 @@
       <div class="consistency-importance">
         <div class="consistency-header">
           <span class="consistency-icon">🏆</span>
-          <h3>The Importance of Consistency</h3>
+          <h3>{$t('onboarding.progressScreen.consistency.title')}</h3>
         </div>
         
         <div class="consistency-content">
@@ -215,31 +215,31 @@
             <div class="point-item">
               <span class="point-icon">⏰</span>
               <div class="point-text">
-                <strong>Just a few minutes per day</strong>
-                <p>Even short, consistent training sessions are highly effective</p>
+                <strong>{$t('onboarding.progressScreen.consistency.point1.strong')}</strong>
+                <p>{$t('onboarding.progressScreen.consistency.point1.desc')}</p>
               </div>
             </div>
             
             <div class="point-item">
               <span class="point-icon">📈</span>
               <div class="point-text">
-                <strong>Personal growth matters most</strong>
-                <p>Each result is unique - focus on your own improvement journey</p>
+                <strong>{$t('onboarding.progressScreen.consistency.point2.strong')}</strong>
+                <p>{$t('onboarding.progressScreen.consistency.point2.desc')}</p>
               </div>
             </div>
             
             <div class="point-item">
               <span class="point-icon">🧠</span>
               <div class="point-text">
-                <strong>Brain plasticity requires repetition</strong>
-                <p>Regular practice strengthens neural pathways over time</p>
+                <strong>{$t('onboarding.progressScreen.consistency.point3.strong')}</strong>
+                <p>{$t('onboarding.progressScreen.consistency.point3.desc')}</p>
               </div>
             </div>
           </div>
           
           <div class="consistency-visual">
             <div class="calendar-example">
-              <h4>Your Training Calendar</h4>
+              <h4>{$t('onboarding.progressScreen.consistency.calendar.title')}</h4>
               <div class="calendar-grid">
                 <div class="calendar-day completed">1</div>
                 <div class="calendar-day completed">2</div>
@@ -259,11 +259,11 @@
               <div class="calendar-stats">
                 <span class="stat-item">
                   <span class="stat-dot completed"></span>
-                  11 days completed
+                  {$t('onboarding.progressScreen.consistency.calendar.stats.completed')}
                 </span>
                 <span class="stat-item">
                   <span class="stat-dot missed"></span>
-                  1 day missed
+                  {$t('onboarding.progressScreen.consistency.calendar.stats.missed')}
                 </span>
               </div>
             </div>
@@ -275,8 +275,8 @@
         <div class="message-content">
           <span class="message-icon">💪</span>
           <div class="message-text">
-            <strong>Remember: Every small improvement counts!</strong>
-            <p>Your brain is constantly adapting and growing stronger with each training session.</p>
+            <strong>{$t('onboarding.progressScreen.motivation.strong')}</strong>
+            <p>{$t('onboarding.progressScreen.motivation.desc')}</p>
           </div>
         </div>
       </div>

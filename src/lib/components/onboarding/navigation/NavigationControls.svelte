@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { t } from '$lib/i18n';
   
   const dispatch = createEventDispatcher<{
     next: void;
@@ -13,7 +14,7 @@
   
   $: isFirstScreen = currentScreen === 0;
   $: isLastScreen = currentScreen === totalScreens - 1;
-  $: nextButtonText = isLastScreen ? 'Get started' : 'Next';
+  $: nextButtonText = isLastScreen ? $t('onboarding.navigation.getStarted') : $t('onboarding.navigation.next');
   
   function handleNext() {
     dispatch('next');
@@ -38,7 +39,7 @@
         aria-label="Go to previous onboarding screen"
         title="Navigate to the previous screen"
       >
-        ← Previous
+        {$t('onboarding.navigation.previous')}
       </button>
     {/if}
   </div>
@@ -52,7 +53,7 @@
         aria-label="Skip the onboarding tour and go directly to the application"
         title="Skip the remaining onboarding steps"
       >
-        Skip Tour
+        {$t('onboarding.navigation.skip')}
       </button>
     {/if}
   </div>
@@ -66,11 +67,7 @@
       aria-label={isLastScreen ? "Complete onboarding and start using the application" : "Continue to the next onboarding screen"}
       title={isLastScreen ? "Complete the onboarding process" : "Go to the next screen"}
     >
-      {#if isLastScreen}
-        🚀 {nextButtonText}
-      {:else}
-        {nextButtonText} →
-      {/if}
+      {nextButtonText}
     </button>
   </div>
 </div>

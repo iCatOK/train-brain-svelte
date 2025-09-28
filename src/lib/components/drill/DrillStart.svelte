@@ -2,10 +2,11 @@
   /**
    * Start drill function that bound to "Start drill button"
    */
+  import { t } from "$lib/i18n"
   export let startDrill: () => void;
 </script>
 
-<button class="start-button" on:click={startDrill}>Start Daily Drill</button>
+<button class="start-button" on:click={startDrill}>{$t('dailyDrillPage.startButton')}</button>
 
 <style>
   .start-button {

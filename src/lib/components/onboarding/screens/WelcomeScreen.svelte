@@ -1,18 +1,17 @@
 <script lang="ts">
   // Screen 1: Welcome & Introduction
   // Content from introduction_screens.md lines 58-61
+  import { t } from '$lib/i18n';
 </script>
 
 <div class="welcome-screen">
   <div class="screen-icon">🧠</div>
   
-  <h1 class="screen-title">Welcome! Develop Your Brain with the Japanese Method</h1>
+  <h1 class="screen-title">{$t('onboarding.welcome.title')}</h1>
   
   <div class="content">
     <p class="intro-text">
-      Welcome to the application and emphasizes that the <strong>brain is capable of development at any age</strong>. 
-      Professor Ryuta Kawashima's methodology is aimed at <strong>active stimulation of the prefrontal cortex</strong> 
-      to improve intelligence and memory.
+      {$t('onboarding.welcome.intro1')} <strong>{$t('onboarding.welcome.strong1')}</strong>{$t('onboarding.welcome.intro2')} <strong>{$t('onboarding.welcome.strong2')}</strong>{$t('onboarding.welcome.intro3')}
     </p>
     
     <div class="highlight-card">
@@ -25,13 +24,12 @@
         </div>
       </div>
       <p class="highlight-text">
-        Daily short training sessions can prevent age-related brain changes and improve mental functions.
+        {$t('onboarding.welcome.highlight')}
       </p>
     </div>
     
     <p class="method-explanation">
-      This proven Japanese methodology focuses on <strong>maximum activation of the prefrontal cortex</strong> 
-      through simple yet effective exercises performed consistently over time.
+      {$t('onboarding.welcome.explanation1')} <strong>{$t('onboarding.welcome.explanationStrong1')}</strong> {$t('onboarding.welcome.explanation2')}
     </p>
   </div>
 </div>

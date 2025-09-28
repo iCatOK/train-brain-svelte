@@ -1,25 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { t } from '$lib/i18n';
   import StroopTest from '$lib/components/weekly-tests/StroopTest.svelte';
   
   const dispatch = createEventDispatcher<{ testCompleted: 'stroop' }>();
-  
-  // Sample Stroop test examples
-  const stroopExamples = [
-    { word: 'RED', color: '#3b82f6', correctAnswer: 'BLUE' }, // RED in blue
-    { word: 'BLUE', color: '#10b981', correctAnswer: 'GREEN' }, // BLUE in green
-    { word: 'GREEN', color: '#ef4444', correctAnswer: 'RED' }, // GREEN in red
-    { word: 'YELLOW', color: '#8b5cf6', correctAnswer: 'PURPLE' }, // YELLOW in purple
-    { word: 'PURPLE', color: '#f59e0b', correctAnswer: 'YELLOW' } // PURPLE in yellow
-  ];
-  
-  const colors = [
-    { name: 'RED', value: '#ef4444' },
-    { name: 'BLUE', value: '#3b82f6' },
-    { name: 'GREEN', value: '#10b981' },
-    { name: 'YELLOW', value: '#f59e0b' },
-    { name: 'PURPLE', value: '#8b5cf6' }
-  ];
   
   function handleTestCompleted(event: CustomEvent<'stroop'>) {
     dispatch('testCompleted', event.detail);
@@ -28,40 +12,38 @@
 
 <div class="stroop-screen">
   <div class="test-badge">
-    <span class="test-number">3</span>
-    <span class="test-total">/ 3</span>
+    <span class="test-number">{$t('onboarding.stroopScreen.badgeNumber')}</span>
+    <span class="test-total">/ {$t('onboarding.stroopScreen.badgeTotal')}</span>
   </div>
   
   <div class="screen-icon">🎨</div>
   
-  <h1 class="screen-title">Initial Assessment: Stroop Test</h1>
+  <h1 class="screen-title">{$t('onboarding.stroopScreen.title')}</h1>
   
   <div class="content">
     <div class="test-overview">
       <p class="intro-text">
-        This is the final assessment test aimed at checking <strong>attention and reaction speed</strong>. 
-        Your task is to <strong>quickly name the COLOR of the font while ignoring the word's meaning</strong>.
+        {$t('onboarding.stroopScreen.intro1')} <strong>{$t('onboarding.stroopScreen.strong1')}</strong>{$t('onboarding.stroopScreen.intro2')} <strong>{$t('onboarding.stroopScreen.strong2')}</strong>.
       </p>
       
       <div class="stroop-explanation">
         <div class="explanation-header">
           <span class="explanation-icon">🎯</span>
-          <h3>How it works:</h3>
+          <h3>{$t('onboarding.stroopScreen.howItWorks')}</h3>
         </div>
         
         <div class="example-demonstration">
           <div class="demo-card">
-            <div class="demo-word" style="color: #3b82f6; font-weight: 700; font-size: 1.5rem;">RED</div>
+            <div class="demo-word" style="color: #3b82f6; font-weight: 700; font-size: 1.5rem;">{$t('onboarding.stroopScreen.explanationIncorrect')}</div>
             <div class="demo-arrow">→</div>
             <div class="demo-answer">
-              <span class="answer-label">Correct answer:</span>
-              <span class="answer-value" style="color: #3b82f6; font-weight: 700;">BLUE</span>
+              <span class="answer-label">{$t('onboarding.stroopScreen.example.label')}</span>
+              <span class="answer-value" style="color: #3b82f6; font-weight: 700;">{$t('onboarding.stroopScreen.explanationCorrect')}</span>
             </div>
           </div>
           
           <p class="demo-explanation">
-            If the word "RED" is written in <span style="color: #3b82f6; font-weight: 600;">blue</span> color, 
-            the correct answer is <strong>"BLUE"</strong> - name the color, not the word!
+            {$t('onboarding.stroopScreen.explanation1')} <span style="color: #3b82f6; font-weight: 600;">{$t('onboarding.stroopScreen.explanationColor')}</span>{$t('onboarding.stroopScreen.explanation2')} <strong>"{$t('onboarding.stroopScreen.explanationCorrect')}"</strong>{$t('onboarding.stroopScreen.explanation3')}
           </p>
         </div>
       </div>

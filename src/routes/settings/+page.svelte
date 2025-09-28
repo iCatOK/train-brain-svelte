@@ -8,6 +8,7 @@
   import ConfirmationDialog from '$lib/components/settings/ConfirmationDialog.svelte';
 
   import { locale } from 'svelte-i18n';
+  import { t } from "$lib/i18n"
 
   // available languages
   const languages = [
@@ -28,14 +29,21 @@
   let showResetConfirm = false;
   let showOnboardingResetConfirm = false;
   let successMessage = "";
+  const lessThanValue = 10;
+  const moreThanValue = 100;
+
+  let lessThanMessage = $t('settingsPage.dailyProblems.lessThan', { values: { count: lessThanValue } })
+  let moreThanMessage = $t('settingsPage.dailyProblems.moreThan', { values: { count: moreThanValue } })
+  let resetOnboardingSuccessMessage = $t('settingsPage.resetOnboarding.resetSuccess')
+
 
   function validateCount(count: number): boolean {
-    if (count < 10) {
-      errorMessage = "Number of problems cannot be less than 10";
+    if (count < lessThanValue) {
+      errorMessage = lessThanMessage;
       return false;
     }
-    if (count > 100) {
-      errorMessage = "Number of problems cannot be more than 100";
+    if (count > moreThanValue) {
+      errorMessage = moreThanMessage;
       return false;
     }
     errorMessage = "";
@@ -76,7 +84,7 @@
     try {
       settings.resetOnboarding();
       showOnboardingResetConfirm = false;
-      successMessage = "Onboarding has been reset successfully!";
+      successMessage = resetOnboardingSuccessMessage;
       
       // Clear success message after 3 seconds
       setTimeout(() => {
@@ -109,7 +117,7 @@
 
 <div class="page-container">
   <div class="settings-card">
-    <h2>Settings</h2>
+    <h2>{$t('settingsPage.title')}</h2>
     
     {#if successMessage}
       <div class="success-message">
@@ -137,11 +145,11 @@
     {#if showOnboardingResetConfirm}
       <div class="confirm-dialog-overlay" on:click={cancelOnboardingReset} role="button" tabindex="0" on:keydown={handleOnboardingKeydown}>
         <div class="confirm-dialog" on:click|stopPropagation on:keydown|stopPropagation={handleOnboardingKeydown} role="button" tabindex="0">
-          <h3>Reset Onboarding</h3>
-          <p>Are you sure you want to reset the onboarding tutorial? This will allow you to see the introduction screens again on your next visit.</p>
+          <h3>{$t('settingsPage.resetOnboarding.modalTitle')}</h3>
+          <p>{$t('settingsPage.resetOnboarding.modalText')}</p>
           <div class="confirm-buttons">
-            <button class="cancel-button" on:click={cancelOnboardingReset}>Cancel</button>
-            <button class="confirm-reset-button" on:click={confirmOnboardingReset}>Yes, Reset Onboarding</button>
+            <button class="cancel-button" on:click={cancelOnboardingReset}>{$t('settingsPage.resetOnboarding.modalCancel')}</button>
+            <button class="confirm-reset-button" on:click={confirmOnboardingReset}>{$t('settingsPage.resetOnboarding.modalConfirm')}</button>
           </div>
         </div>
       </div>

@@ -1,8 +1,22 @@
 <script lang="ts">
   import { weeklyTestStore } from '$lib/stores/weeklyTestResults';
   import { createEventDispatcher } from 'svelte';
+  import { t } from '$lib/i18n';
 
   const dispatch = createEventDispatcher<{ testCompleted: 'stroop' }>();
+
+  // Define color constants and their localized versions
+  const COLOR_KEYS = {
+    RED: 'RED',
+    GREEN: 'GREEN',
+    BLUE: 'BLUE',
+    YELLOW: 'YELLOW'
+  } as const;
+
+  // Function to get localized color name
+  function getLocalizedColorName(colorKey: ColorName): string {
+    return $t(`stroopTest.${colorKey.toLowerCase()}`);
+  }
 
   type TestStage = 'initial' | 'running' | 'finished';
   type ColorName = 'RED' | 'GREEN' | 'BLUE' | 'YELLOW';
@@ -19,22 +33,24 @@
   const colorValues: ColorValue[] = ['red', 'green', 'blue', 'yellow'];
   
   // Create a 10x5 grid of color words with random colors
-  const colorGrid = $state<{text: ColorName, color: ColorValue}[][]>([]);
+  const colorGrid = $state<{text: ColorName, color: ColorValue, localizedText: string}[][]>([]);
 
   // Generate the color grid with random combinations
   function generateColorGrid() {
     const rows = 10;
     const cols = 5;
-    const newGrid: {text: ColorName, color: ColorValue}[][] = [];
+    const newGrid: {text: ColorName, color: ColorValue, localizedText: string}[][] = [];
     
     for (let i = 0; i < rows; i++) {
-      const row: {text: ColorName, color: ColorValue}[] = [];
+      const row: {text: ColorName, color: ColorValue, localizedText: string}[] = [];
       for (let j = 0; j < cols; j++) {
         const textIndex = Math.floor(Math.random() * colorNames.length);
         const colorIndex = Math.floor(Math.random() * colorValues.length);
+        const colorKey = colorNames[textIndex];
         row.push({
           text: colorNames[textIndex],
-          color: colorValues[colorIndex]
+          color: colorValues[colorIndex],
+          localizedText: getLocalizedColorName(colorKey)
         });
       }
       newGrid.push(row);
@@ -121,10 +137,10 @@
 </script>
 
 <div class="stroop-test-container">
-  <h3>The Stroop test</h3>
+  <h3>{$t('stroopTest.title')}</h3>
   
   <p class="instructions">
-    The Stroop test measures your ability to name colors. After clicking the "Start" button, please name the colors that the words in the table are written in. If you make an error, simply say the correct color immediately. 
+    {$t('stroopTest.description')}
   </p>
 
   <div class="timer-display" class:finished={testStage === 'finished'}>
@@ -137,7 +153,7 @@
         <div class="color-row">
           {#each row as cell}
             <div class="color-cell" style="color: {cell.color}">
-              {cell.text}
+              {cell.localizedText}
             </div>
           {/each}
         </div>
@@ -147,14 +163,14 @@
 
   <div class="controls">
     {#if testStage === 'initial'}
-      <button class="test-button start" onclick={startTest}>Start</button>
+      <button class="test-button start" onclick={startTest}>{$t('stroopTest.start')}</button>
     {:else if testStage === 'running'}
       <div class="button-group">
-        <button class="test-button stop" onclick={completeTest}>Stop</button>
-        <button class="test-button reset" onclick={resetTimer}>Reset</button>
+        <button class="test-button stop" onclick={completeTest}>{$t('stroopTest.stop')}</button>
+        <button class="test-button reset" onclick={resetTimer}>{$t('stroopTest.reset')}</button>
       </div>
     {:else if testStage === 'finished'}
-      <button class="test-button done" onclick={nextTest}>Done</button>
+      <button class="test-button done" onclick={nextTest}>{$t('stroopTest.done')}</button>
     {/if}
   </div>
 </div>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { t } from '$lib/i18n';
   import WordMemoryTest from '$lib/components/weekly-tests/WordMemoryTest.svelte';
   
   const dispatch = createEventDispatcher<{ testCompleted: 'wordMemory' }>();
@@ -20,33 +21,28 @@
 
 <div class="word-memory-screen">
   <div class="test-badge">
-    <span class="test-number">2</span>
-    <span class="test-total">/ 3</span>
+    <span class="test-number">{$t('onboarding.wordMemoryScreen.badgeNumber')}</span>
+    <span class="test-total">/ {$t('onboarding.wordMemoryScreen.badgeTotal')}</span>
   </div>
   
   <div class="screen-icon">📚</div>
   
-  <h1 class="screen-title">Initial Assessment: Word Memory Test</h1>
+  <h1 class="screen-title">{$t('onboarding.wordMemoryScreen.title')}</h1>
   
   <div class="content">
     <div class="test-overview">
       <p class="intro-text">
-        Your task is to <strong>memorize as many words as possible</strong> from a list of 30 words 
-        within <strong>two minutes</strong>. After time expires, you'll be provided with text input  
-        to record all the words you remember. Not all words may fit on the screen, so 
-        please <strong>scroll down</strong> to see them all.
+        {$t('onboarding.wordMemoryScreen.intro1')} <strong>{$t('onboarding.wordMemoryScreen.strong1')}</strong>{$t('onboarding.wordMemoryScreen.intro2')} <strong>{$t('onboarding.wordMemoryScreen.strong2')}</strong>{$t('onboarding.wordMemoryScreen.intro3')} <strong>{$t('onboarding.wordMemoryScreen.strong3')}</strong>{$t('onboarding.wordMemoryScreen.intro4')}
       </p>
       
       <div class="test-phases">
         <div class="phase-card memorization-phase">
           <div class="phase-header">
             <span class="phase-icon">👁️</span>
-            <h3>Phase 1: Memorization</h3>
-            <span class="phase-time">2 minutes</span>
+            <h3>{$t('onboarding.wordMemoryScreen.phase1.title')}</h3>
+            <span class="phase-time">{$t('onboarding.wordMemoryScreen.phase1.time')}</span>
           </div>
-          <p class="phase-description">
-            Study the 30 words displayed in a grid. Use any memory techniques that work for you.
-          </p>
+          <p class="phase-description">{$t('onboarding.wordMemoryScreen.phase1.description')}</p>
         </div>
         
         <div class="phase-arrow">→</div>
@@ -54,26 +50,24 @@
         <div class="phase-card recall-phase">
           <div class="phase-header">
             <span class="phase-icon">✏️</span>
-            <h3>Phase 2: Recall</h3>
-            <span class="phase-time">No time limit</span>
+            <h3>{$t('onboarding.wordMemoryScreen.phase2.title')}</h3>
+            <span class="phase-time">{$t('onboarding.wordMemoryScreen.phase2.time')}</span>
           </div>
-          <p class="phase-description">
-            Write down all the words you remember in the provided empty fields.
-          </p>
+          <p class="phase-description">{$t('onboarding.wordMemoryScreen.phase2.description')}</p>
         </div>
       </div>
       
       <div class="memory-tips">
         <div class="tips-header">
           <span class="tips-icon">🧠</span>
-          <h4>Memory Tips:</h4>
+          <h4>{$t('onboarding.wordMemoryScreen.tips.title')}</h4>
         </div>
         
         <ul class="tips-list">
-          <li>Group words by categories (colors, objects, feelings)</li>
-          <li>Create a story connecting multiple words</li>
-          <li>Use visualization - picture the words in your mind</li>
-          <li>Look for patterns or relationships between words</li>
+          <li>{$t('onboarding.wordMemoryScreen.tips.group')}</li>
+          <li>{$t('onboarding.wordMemoryScreen.tips.story')}</li>
+          <li>{$t('onboarding.wordMemoryScreen.tips.visualization')}</li>
+          <li>{$t('onboarding.wordMemoryScreen.tips.patterns')}</li>
         </ul>
       </div>
       

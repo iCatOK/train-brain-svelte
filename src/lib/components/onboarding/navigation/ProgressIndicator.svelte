@@ -3,11 +3,13 @@
   export let totalScreens: number = 7;
   
   $: progressPercentage = ((currentScreen + 1) / totalScreens) * 100;
+
+  import { t } from '$lib/i18n';
 </script>
 
 <div class="progress-indicator" role="progressbar" aria-valuenow={currentScreen + 1} aria-valuemin="1" aria-valuemax={totalScreens} aria-label="Onboarding progress">
   <div class="progress-text" aria-live="polite">
-    Screen {currentScreen + 1} of {totalScreens}
+    {$t('onboarding.progress.text', { values: { screen: currentScreen + 1, total: totalScreens } })}
   </div>
   
   <div class="progress-bar-container" aria-hidden="true">
@@ -30,11 +32,11 @@
   
   <div class="sr-only">
     {#if currentScreen === 0}
-      Beginning onboarding process
+      {$t('onboarding.progress.srBeginning')}
     {:else if currentScreen === totalScreens - 1}
-      Final step of onboarding
+      {$t('onboarding.progress.srFinal')}
     {:else}
-      Step {currentScreen + 1} of {totalScreens} in the onboarding process
+      {$t('onboarding.progress.srStep', { values: { screen: currentScreen + 1, total: totalScreens } })}
     {/if}
   </div>
 </div>

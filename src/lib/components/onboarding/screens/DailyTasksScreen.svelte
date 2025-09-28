@@ -1,29 +1,29 @@
 <script lang="ts">
   // Screen 2: Daily Tasks
   // Content from introduction_screens.md lines 63-66
+  import { t } from '$lib/i18n';
 </script>
 
 <div class="daily-tasks-screen">
   <div class="screen-icon">📝</div>
   
-  <h1 class="screen-title">Daily Training: Arithmetic Problems</h1>
+  <h1 class="screen-title">{$t('onboarding.dailyTasks.title')}</h1>
   
   <div class="content">
     <p class="intro-text">
-      You will solve blocks of simple arithmetic examples including <strong>addition, subtraction, and multiplication</strong>. 
-      The key goal is to <strong>perform tasks as quickly as possible</strong> for maximum activation of the prefrontal cortex.
+      {$t('onboarding.dailyTasks.intro1')} <strong>{$t('onboarding.dailyTasks.strong1')}</strong>{$t('onboarding.dailyTasks.intro2')} <strong>{$t('onboarding.dailyTasks.strong2')}</strong>{$t('onboarding.dailyTasks.intro3')}
     </p>
     
     <div class="examples-section">
-      <h3>For example:</h3>
+      <h3>{$t('onboarding.dailyTasks.exampleLabel')}</h3>
       <div class="arithmetic-examples">
         <div class="example-card">
-          <div class="problem">8 + 7 = <span class="answer-field">15</span></div>
-          <div class="speed-indicator">⚡ Fast!</div>
+          <div class="problem">{$t('onboarding.dailyTasks.example1')}</div>
+          <div class="speed-indicator">{$t('onboarding.dailyTasks.fast')}</div>
         </div>
         <div class="example-card">
-          <div class="problem">5 * 8 = <span class="answer-field">40</span></div>
-          <div class="speed-indicator">⚡ Rapid!</div>
+          <div class="problem">{$t('onboarding.dailyTasks.example2')}</div>
+          <div class="speed-indicator">{$t('onboarding.dailyTasks.rapid')}</div>
         </div>
       </div>
     </div>

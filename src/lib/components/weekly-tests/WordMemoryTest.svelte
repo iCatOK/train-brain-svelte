@@ -1,17 +1,30 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
   import { weeklyTestStore } from '$lib/stores/weeklyTestResults';
-  import { preventDefault } from 'svelte/legacy';
+  import { t } from '$lib/i18n';
+  import { locale } from 'svelte-i18n';
 
   type TestStage = 'idle' | 'memorizing' | 'recalling' | 'showingResults' | 'finished';
 
   let stage = $state<TestStage>('idle');
-  let timeLeft = $state(120); // 2 minutes in seconds
+  const wordMemorizingTime = 120;
+  let timeLeft = $state(wordMemorizingTime);
   let timerInterval: ReturnType<typeof setInterval> | null = null;
+
+  let currentLocale = $state<string | null | undefined>();
+
+  $effect(() => {
+    const unsubscribe = locale.subscribe(l => currentLocale = l);
+    return unsubscribe;
+  });
 
   // For simplicity, using a fixed list of 20 words.
   // In a real app, this would come from a larger pool and be randomized.
-  const allWords = ["apple", "bicycle", "cloud", "diamond", "elephant", "forest", "guitar", "harbor", "island", "jacket", "kangaroo", "lemon", "mountain", "notebook", "ocean", "pencil", "quarter", "rainbow", "sunshine", "telescope", "umbrella", "village", "waterfall", "xylophone", "yogurt", "zeppelin", "cat", "dog", "house", "tree"];
+  const englishWords = ["apple", "bicycle", "cloud", "diamond", "elephant", "forest", "guitar", "harbor", "island", "jacket", "kangaroo", "lemon", "mountain", "notebook", "ocean", "pencil", "quarter", "rainbow", "sunshine", "telescope", "umbrella", "village", "waterfall", "xylophone", "yogurt", "zeppelin", "cat", "dog", "house", "tree"];
+  const russianWords = ["яблоко", "велосипед", "облако", "алмаз", "слон", "лес", "гитара", "гавань", "остров", "куртка", "кенгуру", "лимон", "гора", "тетрадь", "океан", "карандаш", "четверть", "радуга", "солнце", "телескоп", "зонт", "деревня", "водопад", "ксилофон", "йогурт", "дирижабль", "кот", "собака", "дом", "дерево"];
+  const allWords = $derived(currentLocale === 'ru' ? russianWords : englishWords);
+  
+  
   let wordsToMemorize = $state<string[]>([]);
   const wordsToMemorizeCount = 30; // Number of words to show
 
@@ -36,7 +49,7 @@
   function startMemorization() {
     selectWords();
     stage = 'memorizing';
-    timeLeft = 120;
+    timeLeft = wordMemorizingTime;
     timerInterval = setInterval(() => {
       timeLeft--;
       if (timeLeft <= 0) {
@@ -80,7 +93,7 @@
 
   function resetTestState() {
     stage = 'idle';
-    timeLeft = 120;
+    timeLeft = wordMemorizingTime;
     if (timerInterval) clearInterval(timerInterval);
     wordsToMemorize = [];
     recalledWords = [];
@@ -98,16 +111,16 @@
 </script>
 
 <div class="word-memory-test-container">
-  <h3>Word memory test</h3>
+  <h3>{$t('wordMemoryTest.title')}</h3>
 
   {#if stage === 'idle'}
-    <p class="instructions">Memorise as many words as you can in two minutes.</p>
-    <button class="test-button start" onclick={startMemorization}>Start</button>
+    <p class="instructions">{$t('wordMemoryTest.description1')}</p>
+    <button class="test-button start" onclick={startMemorization}>{$t('wordMemoryTest.start')}</button>
   {/if}
 
   {#if stage === 'memorizing'}
     <div class="memorization-header">
-      <p class="instructions">Memorise as many words as you can in two minutes.</p>
+      <p class="instructions">{$t('wordMemoryTest.description1')}</p>
       <div class="timer-display">{formattedTimeLeft()}</div>
     </div>
     <div class="word-grid">
@@ -118,12 +131,12 @@
   {/if}
 
   {#if stage === 'recalling'}
-    <p class="instructions">Now, write down as many of the words that you can remember.</p>
+    <p class="instructions">{$t('wordMemoryTest.description2')}</p>
     <form class="recall-form" onsubmit={addRecalledWord}>
       <input type="text" bind:value={currentInputWord} placeholder="word" />
-      <button type="submit" class="test-button add">Add</button>
-      <button type="button" class="test-button remove-all" onclick={removeAllRecalledWords}>Remove all</button>
-      <button type="button" class="test-button next" onclick={showResults}>Done</button>
+      <button type="submit" class="test-button add">{$t('wordMemoryTest.add')}</button>
+      <button type="button" class="test-button remove-all" onclick={removeAllRecalledWords}>{$t('wordMemoryTest.removeAll')}</button>
+      <button type="button" class="test-button next" onclick={showResults}>{$t('wordMemoryTest.done')}</button>
     </form>
     <div class="recalled-words-grid">
       {#each recalledWords as word (word)}
@@ -136,11 +149,11 @@
   {/if}
 
   {#if stage === 'showingResults'}
-    <p class="instructions">Results:</p>
-    <p>You recalled {correctWords.length} out of {wordsToMemorize.length} words correctly.</p>
+    <p class="instructions">{$t('wordMemoryTest.resultsTitle')}</p>
+    <p>{$t('wordMemoryTest.resultsDescription', { values: { correct: correctWords.length, total: wordsToMemorize.length } })}</p>
     <div class="results-grid">
       <div class="result-group">
-        <h4>Correctly Recalled Words</h4>
+        <h4>{$t('wordMemoryTest.correctWords')}</h4>
         <div class="word-grid">
           {#each correctWords as word (word)}
             <div class="word-chip correct">{word}</div>
@@ -148,7 +161,7 @@
         </div>
       </div>
       <div class="result-group">
-        <h4>Missed Words</h4>
+        <h4>{$t('wordMemoryTest.missedWords')}</h4>
         <div class="word-grid">
           {#each missedWords as word (word)}
             <div class="word-chip missed">{word}</div>
@@ -156,12 +169,12 @@
         </div>
       </div>
     </div>
-    <button class="test-button next" style="margin-top: 20px;" onclick={finishTest}>Next</button>
+    <button class="test-button next" style="margin-top: 20px;" onclick={finishTest}>{$t('wordMemoryTest.next')}</button>
   {/if}
 
   {#if stage === 'finished'}
-    <p class="instructions">Word Memory Test completed! Results saved.</p>
-    <p>You recalled {correctWords.length} out of {wordsToMemorize.length} words correctly.</p>
+    <p class="instructions">{$t('wordMemoryTest.resultsSaved')}</p>
+    <p>{$t('wordMemoryTest.resultsDescription', { values: { correct: correctWords.length, total: wordsToMemorize.length } })}</p>
   {/if}
 </div>
 

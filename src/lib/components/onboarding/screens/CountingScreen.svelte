@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { t } from '$lib/i18n';
   import CountingTest from '$lib/components/weekly-tests/CountingTest.svelte';
   
   const dispatch = createEventDispatcher<{ testCompleted: 'counting' }>();
@@ -11,21 +12,18 @@
 
 <div class="counting-screen">
   <div class="test-badge">
-    <span class="test-number">1</span>
-    <span class="test-total">/ 3</span>
+    <span class="test-number">{$t('onboarding.countingScreen.badgeNumber')}</span>
+    <span class="test-total">/ {$t('onboarding.countingScreen.badgeTotal')}</span>
   </div>
   
   <div class="screen-icon">🔢</div>
   
-  <h1 class="screen-title">Initial Assessment: Counting Test</h1>
+  <h1 class="screen-title">{$t('onboarding.countingScreen.title')}</h1>
   
   <div class="content">
     <div class="test-overview">
       <p class="intro-text">
-        This is the first test of your initial assessment. Your task is to 
-        <strong>count aloud from 1 to 120 as quickly as possible</strong>. 
-        Just press <strong>Start</strong> button to start measuring time and
-        <strong>Stop</strong> button when you done. Don't worry about perfect pronunciation.
+        {$t('onboarding.countingScreen.intro1')} <strong>{$t('onboarding.countingScreen.strong1')}</strong>{$t('onboarding.countingScreen.justPress')} <strong>{$t('onboarding.countingScreen.strong2')}</strong>{$t('onboarding.countingScreen.intro2')} <strong>{$t('onboarding.countingScreen.strong3')}</strong>{$t('onboarding.countingScreen.intro3')}
       </p>
       
       <div class="test-container">

@@ -1,12 +1,12 @@
 {
   "header": {
-    "logo": "Train Brain",
+    "logo": "BrainSpark",
     "statisticsNav": "Statistics",
     "settingsNav": "Settings"
   },
   "heading": {
-    "title": "Train Brain Game",
-    "subtitle": "Sharpen your math skills with daily problems in Train Brain Game"
+    "title": "BrainSpark",
+    "subtitle": "⚡ Sharpen your math skills with daily problems in BrainSpark ⚡"
   },
   "journey": {
     "day": "Day {number} of your math journey"
@@ -70,5 +70,292 @@
   "dailyDrillCompleted": {
     "title": "Daily Drill Completed!",
     "subtitle": "Great job! You've completed your daily drill. Come back tomorrow for a new challenge!"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome! Develop Your Brain with the Japanese Method",
+      "intro1": "Welcome to the application and emphasizes that ",
+      "strong1": "the brain is capable of development at any age.",
+      "intro2": " Professor Ryuta Kawashima's methodology is aimed at ",
+      "strong2": "active stimulation of the prefrontal cortex ",
+      "intro3": "to improve intelligence and memory.",
+      "highlight": "Daily short training sessions can prevent age-related brain changes and improve mental functions.",
+      "explanation1": "This proven Japanese methodology focuses on ",
+      "explanationStrong1": "maximum activation of the prefrontal cortex ",
+      "explanation2": "through simple yet effective exercises performed consistently over time."
+    },
+    "dailyTasks": {
+      "title": "Daily Training: Arithmetic Problems",
+      "intro1": "You will solve blocks of simple arithmetic examples including addition, subtraction, and multiplication. ",
+      "strong1": "The key goal",
+      "intro2": " is to perform tasks ",
+      "strong2": "as quickly as possible",
+      "intro3": " for maximum activation of the prefrontal cortex.",
+      "exampleLabel": "For example:",
+      "example1": "8 + 7 = 15",
+      "example2": "5 * 8 = 40",
+      "fast": "⚡ Fast!",
+      "rapid": "⚡ Rapid!"
+    },
+    "weeklyTests": {
+      "title": "Weekly Assessment: Your Progress",
+      "intro1": "Comprehensive weekly assessment to measure prefrontal cortex condition and track progress. ",
+      "strong1": "The assessment consists of",
+      "intro2": " three specialized tests designed to evaluate different aspects of brain function.",
+      "testsLabel": "Three Assessment Tests:",
+      "counting": {
+        "title": "Counting Test",
+        "description": "Measure speed and accuracy by counting from 1 to 120 as quickly as possible.",
+        "focusLabel": "Focus:",
+        "focus": "Processing speed & attention",
+        "indicator": "Speed & Accuracy"
+      },
+      "wordMemory": {
+        "title": "Word Memory Test",
+        "description": "Memorize as many words as possible from a 30-word list within 2 minutes.",
+        "focusLabel": "Focus:",
+        "focus": "Memory capacity & retention",
+        "indicator": "Memory & Recall"
+      },
+      "stroop": {
+        "title": "Stroop Test",
+        "description": "Name the color of the font while ignoring the word's meaning.",
+        "focusLabel": "Focus:",
+        "focus": "Attention & reaction speed",
+        "indicator": "Cognitive Control"
+      },
+      "assessment": {
+        "title": "Comprehensive Brain Assessment",
+        "description": "Each test evaluates different cognitive functions for a complete picture of your mental performance."
+      }
+    },
+    "countingScreen": {
+      "badgeNumber": "1",
+      "badgeTotal": "3",
+      "title": "Initial Assessment: Counting Test",
+      "intro1": "This is the first test of your initial assessment. ",
+      "strong1": "Your task is to count aloud from 1 to 120 as quickly as possible",
+      "strong2": "Start",
+      "strong3": "Stop",
+      "justPress": ". Just press ",
+      "intro2": " button to start measuring time and ",
+      "intro3": " button when you done. Don't worry about perfect pronunciation.",
+      "start": "Start",
+      "stop": "Stop"
+    },
+    "stroopScreen": {
+      "badgeNumber": "3",
+      "badgeTotal": "3",
+      "title": "Initial Assessment: Stroop Test",
+      "intro1": "This is the final assessment test aimed at checking attention and reaction speed. Your task is ",
+      "strong1": "to quickly name the COLOR of the font ",
+      "intro2": "while ignoring ",
+      "strong2": "the word's meaning",
+      "howItWorks": "How it works:",
+      "example": {
+        "label": "Correct answer:"
+      },
+      "explanation1": "If the word \"RED\" is written in ",
+      "explanationColor": "blue",
+      "explanation2": " color, the correct answer is ",
+      "explanation3": " - name the color, not the word!",
+      "explanationCorrect": "BLUE",
+      "explanationIncorrect": "RED"
+    },
+    "wordMemoryScreen": {
+      "badgeNumber": "2",
+      "badgeTotal": "3",
+      "title": "Initial Assessment: Word Memory Test",
+      "intro1": "Your task is to memorize as many words as possible ",
+      "strong1": "from a list of 30 words",
+      "intro2": " within ",
+      "strong2": "two minutes",
+      "intro3": ". After time expires, you'll be provided with text input to record all the words you remember. Not all words may fit on the screen, so please ",
+      "strong3": "scroll down",
+      "intro4": " to see them all.",
+      "phase1": {
+        "title": "Phase 1: Memorization",
+        "time": "2 minutes",
+        "description": "Study the 30 words displayed in a grid. Use any memory techniques that work for you."
+      },
+      "phase2": {
+        "title": "Phase 2: Recall",
+        "time": "No time limit",
+        "description": "Write down all the words you remember in the provided empty fields."
+      },
+      "tips": {
+        "title": "Memory Tips:",
+        "group": "Group words by categories (colors, objects, feelings)",
+        "story": "Create a story connecting multiple words",
+        "visualization": "Use visualization - picture the words in your mind",
+        "patterns": "Look for patterns or relationships between words"
+      }
+    },
+    "progressScreen": {
+      "title": "Track Your Progress and Achievements",
+      "intro1": "The application will save ",
+      "strong1": "daily results of arithmetic tasks (time spent)",
+      "intro2": " and ",
+      "strong2": "weekly results of all tests",
+      "intro3": ". Progress will be displayed with visual graphs to help you track your improvement over time.",
+      "daily": {
+        "title": "Daily Arithmetic Results",
+        "description": "Track completion time for each daily math session",
+        "caption": "Daily completion times getting faster!"
+      },
+      "weekly": {
+        "title": "Weekly Test Results",
+        "description": "Monitor performance across all three cognitive tests",
+        "legend": {
+          "counting": "● Counting (sec)",
+          "memory": "● Memory (words)",
+          "stroop": "● Stroop (sec)"
+        },
+        "caption": "Weekly improvements across all tests"
+      },
+      "consistency": {
+        "title": "The Importance of Consistency",
+        "point1": {
+          "strong": "Just a few minutes per day",
+          "desc": "Even short, consistent training sessions are highly effective"
+        },
+        "point2": {
+          "strong": "Personal growth matters most",
+          "desc": "Each result is unique - focus on your own improvement journey"
+        },
+        "point3": {
+          "strong": "Brain plasticity requires repetition",
+          "desc": "Regular practice strengthens neural pathways over time"
+        },
+        "calendar": {
+          "title": "Your Training Calendar",
+          "stats": {
+            "completed": "11 days completed",
+            "missed": "1 day missed"
+          }
+        },
+        "weeks": {
+          "week1": "Week 1",
+          "week2": "Week 2",
+          "week3": "Week 3",
+          "week4": "Week 4"
+        },
+        "dailyTimes": {
+          "mon": "Mon",
+          "tue": "Tue",
+          "wed": "Wed",
+          "thu": "Thu",
+          "fri": "Fri",
+          "sat": "Sat",
+          "sun": "Sun"
+        }
+      },
+      "motivation": {
+        "strong": "Remember: Every small improvement counts!",
+        "desc": "Your brain is constantly adapting and growing stronger with each training session."
+      }
+    },
+    "navigation": {
+      "previous": "← Previous",
+      "skip": "Skip Tour",
+      "next": "Next →",
+      "getStarted": "🚀 Get started"
+    },
+    "progress": {
+      "text": "Screen {screen} of {total}",
+      "srBeginning": "Beginning onboarding process",
+      "srStep": "Step {screen} of {total} in the onboarding process",
+      "srFinal": "Final step of onboarding"
+    },
+    "modal": {
+      "ariaLabel": "Brain Training Onboarding Process",
+      "srDescription": "Interactive onboarding tour to introduce you to the brain training application features and tests."
+    }
+  },
+  "countingTest": {
+    "title": "Counting Test",
+    "description": "Time how long it takes you to say the numbers from 1 to 120 out loud as quickly as possible.",
+    "finishedText": "Enter the amount of time in seconds.",
+    "start": "Start",
+    "stop": "Stop",
+    "next": "Next"
+  },
+  "wordMemoryTest": {
+    "title": "Word Memory Test",
+    "description1": "Memorise as many words as you can in two minutes.",
+    "start": "Start",
+    "done": "Done",
+    "add": "Add",
+    "removeAll": "Remove All",
+    "description2": "Now, write down as many of the words that you can remember.",
+    "next": "Next",
+    "resultsTitle": "Results:",
+    "resultsDescription": "You recalled {correct} out of {total, plural, one {# word} other {# words}} correctly.",
+    "correctWords": "Correctly Recalled Words",
+    "missedWords": "Missed Words",
+    "resultsSaved": "Word Memory Test completed! Results saved."
+  },
+  "stroopTest": {
+    "title": "The Stroop test",
+    "description": "The Stroop test measures your ability to name colors. After clicking the \"Start\" button, please name the colors that the words in the table are written in. If you make an error, simply say the correct color immediately.",
+    "start": "Start",
+    "stop": "Stop",
+    "reset": "Reset",
+    "done": "Done",
+    "red": "RED",
+    "green": "GREEN",
+    "blue": "BLUE",
+    "yellow": "YELLOW"
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "resetConfirm": {
+      "title": "Confirm Reset",
+      "message": "Are you sure you want to reset all your progress? This will permanently delete all drill results, weekly test data, and reset your day counter to Day 1.",
+      "buttons": {
+        "cancel": "Cancel",
+        "confirm": "Yes, Reset Everything"
+      }
+    },
+    "dailyProblems": {
+      "label": "Number of Daily Problems",
+      "helpText": "Choose between 10 and 100 problems",
+      "saveButton": "Save Changes",
+      "lessThan": "Number of problems cannot be less than {count}",
+      "moreThan": "Number of problems cannot be more than {count}"
+    },
+    "resetOnboarding": {
+      "title": "Onboarding",
+      "description": "Restart the onboarding tutorial to see the introduction screens again.",
+      "statusLabel": "Current status:",
+      "button": "Reset Onboarding",
+      "completed": "Completed",
+      "notCompleted": "Not completed",
+      "resetSuccess": "Onboarding has been reset successfully!",
+      "modalTitle": "Reset Onboarding",
+      "modalText": "Are you sure you want to reset the onboarding tutorial? This will allow you to see the introduction screens again on your next visit.",
+      "modalCancel": "Cancel",
+      "modalConfirm": "Yes, Reset Onboarding"
+    },
+    "resetProgress": {
+      "title": "DangerZone",
+      "subtitle": "Reset all your daily drills and weekly test data. This action cannot be undone.",
+      "resetButton": "Reset All Progress"
+    }
+  },
+  "dailyDrillPage": {
+    "startButton": "Start Daily Drill",
+    "problemTitle": "Problem {current} of {total}",
+    "answerPlaceholder": "Enter your answer",
+    "submit": "Submit",
+    "incorrectAnswer": "Incorrect answer. Please try again.",
+    "resultsTitle": "🎉 Congrats! 🎉",
+    "resultsYourTime": "Your time:",
+    "resultsMedal": "Medal:",
+    "resultsGold": "🥇 Gold",
+    "resultsSilver": "🥈 Silver",
+    "resultsBronze": "🥉 Bronze",
+    "resultsNoMedal": "No Medal",
+    "resultsGoHome": "Go Home"
   }
 }

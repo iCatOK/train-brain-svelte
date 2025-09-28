@@ -1,14 +1,15 @@
 <script lang="ts">
+  import { t } from "$lib/i18n"
   export let onResetTrigger: () => void;
 </script>
 
 <div class="reset-section">
-  <h3>Danger Zone</h3>
-  <p class="reset-description">Reset all your progress data. This action cannot be undone.</p>
+  <h3>{$t('settingsPage.resetProgress.title')}</h3>
+  <p class="reset-description">{$t('settingsPage.resetProgress.subtitle')}</p>
   <button
     class="reset-button"
     on:click={onResetTrigger}
-  >Reset All Progress</button>
+  >{$t('settingsPage.resetProgress.resetButton')}</button>
 </div>
 
 <style>

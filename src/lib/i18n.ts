@@ -1,6 +1,6 @@
-import { init, locale as $locale, getLocaleFromNavigator } from 'svelte-i18n';
+import { init, locale as $locale, getLocaleFromNavigator, _ } from 'svelte-i18n';
 
-export const DEFAULT_LOCALE = 'en';
+export const DEFAULT_LOCALE = 'ru';
 
 export function initI18n(initialLocale?: string) {
   let locale = initialLocale;
@@ -24,3 +24,5 @@ export function initI18n(initialLocale?: string) {
     });
   }
 }
+
+export const t = _;

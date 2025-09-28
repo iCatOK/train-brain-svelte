@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onboarding } from '$lib/stores/onboarding';
+  import { t } from '$lib/i18n';
   
   export let onResetTrigger: () => void;
   
@@ -10,14 +11,14 @@
     onboardingState = state;
   });
   
-  $: statusText = onboardingState.isCompleted ? 'Completed' : 'Not completed';
+  $: statusText = onboardingState.isCompleted ? $t('settingsPage.resetOnboarding.completed') : $t('settingsPage.resetOnboarding.notCompleted');
 </script>
 
 <div class="onboarding-section">
-  <h3>Onboarding</h3>
-  <p class="section-description">Restart the onboarding tutorial to see the introduction screens again.</p>
+  <h3>{$t('settingsPage.resetOnboarding.title')}</h3>
+  <p class="section-description">{$t('settingsPage.resetOnboarding.description')}</p>
   <div class="status-display">
-    <span class="status-label">Current status:</span>
+    <span class="status-label">{$t('settingsPage.resetOnboarding.statusLabel')}</span>
     <span class="status-value" class:completed={onboardingState.isCompleted}>
       {statusText}
     </span>
@@ -25,7 +26,7 @@
   <button
     class="reset-onboarding-button"
     on:click={onResetTrigger}
-  >Reset Onboarding</button>
+  >{$t('settingsPage.resetOnboarding.button')}</button>
 </div>
 
 <style>

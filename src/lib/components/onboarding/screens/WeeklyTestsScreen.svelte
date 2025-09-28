@@ -1,21 +1,21 @@
 <script lang="ts">
   // Screen 3: Weekly Tests Overview
   // Content from introduction_screens.md lines 68-71
+  import { t } from '$lib/i18n';
 </script>
 
 <div class="weekly-tests-screen">
   <div class="screen-icon">📊</div>
   
-  <h1 class="screen-title">Weekly Assessment: Your Progress</h1>
+  <h1 class="screen-title">{$t('onboarding.weeklyTests.title')}</h1>
   
   <div class="content">
     <p class="intro-text">
-      Comprehensive weekly assessment to measure <strong>prefrontal cortex condition</strong> and track progress. 
-      The assessment consists of three specialized tests designed to evaluate different aspects of brain function.
+      {$t('onboarding.weeklyTests.intro1')} <strong>{$t('onboarding.weeklyTests.strong1')}</strong>{$t('onboarding.weeklyTests.intro2')}
     </p>
     
     <div class="tests-overview">
-      <h3>Three Assessment Tests:</h3>
+      <h3>{$t('onboarding.weeklyTests.testsLabel')}</h3>
       
       <div class="test-cards">
         <div class="test-card counting-card">
@@ -24,19 +24,19 @@
               <span class="number-icon">123</span>
               <span class="stopwatch">⏱️</span>
             </div>
-            <h4>Counting Test</h4>
+            <h4>{$t('onboarding.weeklyTests.counting.title')}</h4>
           </div>
           <div class="card-content">
             <p class="test-description">
-              Measure speed and accuracy by counting from 1 to 120 as quickly as possible.
+              {$t('onboarding.weeklyTests.counting.description')}
             </p>
             <div class="test-focus">
-              <strong>Focus:</strong> Processing speed & attention
+              <strong>{$t('onboarding.weeklyTests.counting.focusLabel')}</strong> {$t('onboarding.weeklyTests.counting.focus')}
             </div>
           </div>
           <div class="card-indicator">
             <span class="pulse-dot"></span>
-            Speed & Accuracy
+            {$t('onboarding.weeklyTests.counting.indicator')}
           </div>
         </div>
         
@@ -46,19 +46,19 @@
               <span class="book-icon">📚</span>
               <span class="words-icon">ABC</span>
             </div>
-            <h4>Word Memory Test</h4>
+            <h4>{$t('onboarding.weeklyTests.wordMemory.title')}</h4>
           </div>
           <div class="card-content">
             <p class="test-description">
-              Memorize as many words as possible from a 30-word list within 2 minutes.
+              {$t('onboarding.weeklyTests.wordMemory.description')}
             </p>
             <div class="test-focus">
-              <strong>Focus:</strong> Memory capacity & retention
+              <strong>{$t('onboarding.weeklyTests.wordMemory.focusLabel')}</strong> {$t('onboarding.weeklyTests.wordMemory.focus')}
             </div>
           </div>
           <div class="card-indicator">
             <span class="pulse-dot"></span>
-            Memory & Recall
+            {$t('onboarding.weeklyTests.wordMemory.indicator')}
           </div>
         </div>
         
@@ -71,19 +71,19 @@
                 <span class="green-word">GREEN</span>
               </div>
             </div>
-            <h4>Stroop Test</h4>
+            <h4>{$t('onboarding.weeklyTests.stroop.title')}</h4>
           </div>
           <div class="card-content">
             <p class="test-description">
-              Name the color of the font while ignoring the word's meaning.
+              {$t('onboarding.weeklyTests.stroop.description')}
             </p>
             <div class="test-focus">
-              <strong>Focus:</strong> Attention & reaction speed
+              <strong>{$t('onboarding.weeklyTests.stroop.focusLabel')}</strong> {$t('onboarding.weeklyTests.stroop.focus')}
             </div>
           </div>
           <div class="card-indicator">
             <span class="pulse-dot"></span>
-            Cognitive Control
+            {$t('onboarding.weeklyTests.stroop.indicator')}
           </div>
         </div>
       </div>
@@ -93,8 +93,8 @@
       <div class="info-card">
         <span class="brain-icon">🧠</span>
         <div class="info-content">
-          <strong>Comprehensive Brain Assessment</strong>
-          <p>Each test evaluates different cognitive functions for a complete picture of your mental performance.</p>
+          <strong>{$t('onboarding.weeklyTests.assessment.title')}</strong>
+          <p>{$t('onboarding.weeklyTests.assessment.description')}</p>
         </div>
       </div>
     </div>
