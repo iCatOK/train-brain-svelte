@@ -13,8 +13,9 @@ export function formatDate(date: Date): string {
  */
 export function formatTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return '00:00';
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.floor(seconds % 60);
+  const totalSeconds = Math.round(seconds);
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 
